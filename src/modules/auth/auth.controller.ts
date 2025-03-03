@@ -5,10 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UploadedFile,
+  UseGuards,
   Version,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import type { Request } from 'express';
 
 import { RoleType } from '../../constants/role-type.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
@@ -23,6 +26,7 @@ import { AuthService } from './auth.service.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { UserLoginDto } from './dto/user-login.dto.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -76,5 +80,18 @@ export class AuthController {
   @ApiOkResponse({ type: UserDto, description: 'current user info' })
   getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+    return HttpStatus.OK;
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOkResponse({ description: 'google Oauth register' })
+  async googleAuthRedirect(@Req() req: Request): Promise<any> {
+    return this.authService.googleLogin(req.user);
   }
 }

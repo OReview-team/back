@@ -49,4 +49,11 @@ export class AuthService {
 
     return user!;
   }
+
+  async googleLogin(user: any): Promise<any> {
+    if (!user) {
+      throw new Error('Google Authentication Failed');
+    }
+    console.log(user);
+  }
 }
