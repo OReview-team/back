@@ -14,7 +14,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import github from 'eslint-plugin-github';
 
-let githubFlatConfig = github.getFlatConfigs();
+const githubFlatConfig = github.getFlatConfigs();
 export default tseslint.config(
   eslint.configs.recommended,
   promisePlugin.configs['flat/recommended'],
@@ -57,18 +57,11 @@ export default tseslint.config(
     extends: [
       githubFlatConfig.recommended,
       ...githubFlatConfig.typescript,
-    ],
-    rules: {
-      'eslintComments/no-use': 'off',
-    },
-  },
-  {
-    extends: [
-      importPlugin.flatConfigs.recommended,
       importPlugin.flatConfigs.typescript,
     ],
     rules: {
-      'import/extensions': ['error', 'always', {ignorePackages: true}],
+      'eslintComments/no-use': 'off',
+      'import/extensions': ['error', 'always', { ignorePackages: true }],
       'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
       // "importPlugin/no-unresolved": ["error", {
       //   ignore: ["^@hr-drone/*", "^firebase-admin/.+"],
@@ -85,9 +78,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      unicornPlugin.configs['flat/all'],
-    ],
+    extends: [unicornPlugin.configs['flat/all']],
     rules: {
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/no-abusive-eslint-disable': 'off',
@@ -104,9 +95,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      canonicalPlugin.configs['flat/recommended'],
-    ],
+    extends: [canonicalPlugin.configs['flat/recommended']],
     rules: {
       'canonical/filename-match-exported': 'error',
       'canonical/import-specifier-newline': 'off',
@@ -123,9 +112,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      sonarjsPlugin.configs.recommended,
-    ],
+    extends: [sonarjsPlugin.configs.recommended],
     rules: {
       'sonarjs/no-duplicate-string': 'off',
     },
@@ -137,9 +124,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      prettierPlugin,
-    ],
+    extends: [prettierPlugin],
     rules: {
       'prettier/prettier': [
         'error',
@@ -159,19 +144,19 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      nPlugin.configs['flat/recommended'],
-    ],
+    extends: [nPlugin.configs['flat/recommended']],
     rules: {
       'n/no-extraneous-import': 'off',
       'n/no-missing-import': 'off',
     },
   },
   {
-    extends: [...tseslint.configs.strictTypeChecked,
+    extends: [
+      ...tseslint.configs.strictTypeChecked,
       tseslint.configs.eslintRecommended,
       ...tseslint.configs.stylisticTypeChecked,
-      ...tseslint.configs.recommendedTypeChecked],
+      ...tseslint.configs.recommendedTypeChecked,
+    ],
     rules: {
       'no-redeclare': 'off',
       '@typescript-eslint/no-redeclare': 'error',
@@ -336,7 +321,7 @@ export default tseslint.config(
           paths: [
             {
               name: 'rxjs/Rx',
-              message: 'Please import directly from \'rxjs\' instead',
+              message: "Please import directly from 'rxjs' instead",
             },
           ],
         },
