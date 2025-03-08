@@ -6,9 +6,9 @@ import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import { UserModule } from '../user/user.module.ts';
 import { AuthController } from './auth.controller.ts';
 import { AuthService } from './auth.service.ts';
+import { GoogleStrategy } from './google.strategy.ts';
 import { JwtStrategy } from './jwt.strategy.ts';
 import { PublicStrategy } from './public.strategy.ts';
-import { GoogleStrategy } from './google.passport.strategy.ts';
 
 @Module({
   imports: [

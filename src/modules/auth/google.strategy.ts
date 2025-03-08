@@ -4,6 +4,8 @@ import type { Profile } from 'passport';
 import type { VerifyCallback } from 'passport-google-oauth20';
 import { Strategy } from 'passport-google-oauth20';
 
+import type { IGoogleUser } from './dto/google-user.interface';
+
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
@@ -23,7 +25,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): void {
     const { name, emails, photos } = profile;
-    const user = {
+    const user: IGoogleUser = {
       email: emails?.[0]?.value ?? null,
       firstName: name?.givenName ?? null,
       lastName: name?.familyName ?? null,

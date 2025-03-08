@@ -6,27 +6,24 @@ import {
   HttpStatus,
   Post,
   Req,
-  UploadedFile,
   UseGuards,
   Version,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 
 import { RoleType } from '../../constants/role-type.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth } from '../../decorators/http.decorators.ts';
-import { ApiFile } from '../../decorators/swagger.schema.ts';
-import type { IFile } from '../../interfaces/IFile.ts';
-import type { Reference } from '../../types.ts';
 import { UserDto } from '../user/dtos/user.dto.ts';
 import { UserEntity } from '../user/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import { AuthService } from './auth.service.ts';
+import type { IGoogleUser } from './dto/google-user.interface.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { UserLoginDto } from './dto/user-login.dto.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -58,15 +55,10 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
-  @ApiFile({ name: 'avatar' })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
-    @UploadedFile() file?: Reference<IFile>,
   ): Promise<UserDto> {
-    const createdUser = await this.userService.createUser(
-      userRegisterDto,
-      file,
-    );
+    const createdUser = await this.userService.createUser(userRegisterDto);
 
     return createdUser.toDto({
       isActive: true,
@@ -84,14 +76,14 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth() {
+  googleAuth() {
     return HttpStatus.OK;
   }
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @ApiOkResponse({ description: 'google Oauth register' })
-  async googleAuthRedirect(@Req() req: Request): Promise<any> {
+  googleAuthRedirect(@Req() req: Request & { user: IGoogleUser }): string {
     return this.authService.googleLogin(req.user);
   }
 }

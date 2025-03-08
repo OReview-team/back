@@ -8,6 +8,7 @@ import { UserNotFoundException } from '../../exceptions/user-not-found.exception
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import type { UserEntity } from '../user/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
+import type { IGoogleUser } from './dto/google-user.interface.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
 import type { UserLoginDto } from './dto/user-login.dto.ts';
 
@@ -50,10 +51,7 @@ export class AuthService {
     return user!;
   }
 
-  async googleLogin(user: any): Promise<any> {
-    if (!user) {
-      throw new Error('Google Authentication Failed');
-    }
-    console.log(user);
+  googleLogin(user: IGoogleUser): string {
+    return user.accessToken;
   }
 }
