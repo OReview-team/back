@@ -1,8 +1,8 @@
 export interface IGoogleUser {
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  picture: string | null;
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture: string;
   accessToken: string;
   refreshToken: string;
 }

@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { validateHash } from '../../common/utils.ts';
-import type { RoleType } from '../../constants/role-type.ts';
+import { RoleType } from '../../constants/role-type.ts';
 import { TokenType } from '../../constants/token-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import type { UserEntity } from '../user/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import type { IGoogleUser } from './dto/google-user.interface.ts';
+import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
 import type { UserLoginDto } from './dto/user-login.dto.ts';
 
@@ -59,7 +60,29 @@ export class AuthService {
     return user!;
   }
 
-  googleLogin(user: IGoogleUser): string {
-    return user.accessToken;
+  async googleLogin(googleUser: IGoogleUser): Promise<LoginPayloadDto> {
+    const { email, picture, firstName, lastName, accessToken } = googleUser;
+    let user = await this.userService.findOne({ email });
+
+    if (!user) {
+      user = await this.userService.createSocialUser({
+        email,
+        nickName: `${firstName}${lastName}`,
+        profileImage: picture,
+        registerProvider: 'google',
+        registerProviderToken: accessToken,
+      });
+    }
+
+    const token = await this.createAccessToken({
+      userId: user.id,
+      email,
+      role: user.role,
+      profileImage: user.profileImage,
+      registerProvider: 'google',
+      registerProviderToken: accessToken,
+    });
+
+    return new LoginPayloadDto(user, token);
   }
 }

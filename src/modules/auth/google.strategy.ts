@@ -26,10 +26,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): void {
     const { name, emails, photos } = profile;
     const user: IGoogleUser = {
-      email: emails?.[0]?.value ?? null,
-      firstName: name?.givenName ?? null,
-      lastName: name?.familyName ?? null,
-      picture: photos?.[0]?.value ?? null,
+      email: emails?.[0]?.value ?? '',
+      firstName: name?.givenName ?? '',
+      lastName: name?.familyName ?? '',
+      picture: photos?.[0]?.value ?? '',
       accessToken,
       refreshToken,
     };

@@ -87,7 +87,9 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @ApiOkResponse({ description: 'google Oauth register' })
-  googleAuthRedirect(@Req() req: Request & { user: IGoogleUser }): string {
+  async googleAuthRedirect(
+    @Req() req: Request & { user: IGoogleUser },
+  ): Promise<LoginPayloadDto> {
     return this.authService.googleLogin(req.user);
   }
 }

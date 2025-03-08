@@ -4,7 +4,9 @@ import type { FindOptionsWhere } from 'typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
+import { RoleType } from '../../constants/role-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
+import { SocialUserRegisterDto } from '../auth/dto/social-user-register.dto.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
 import type { UserDto } from './dtos/user.dto.ts';
 import { UserEntity } from './user.entity.ts';
@@ -46,6 +48,16 @@ export class UserService {
   @Transactional()
   async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
     const user = this.userRepository.create(userRegisterDto);
+    user.role = RoleType.USER;
+    await this.userRepository.save(user);
+
+    return user;
+  }
+
+  @Transactional()
+  async createSocialUser(socialUserRegisterDto: SocialUserRegisterDto) {
+    const user = this.userRepository.create(socialUserRegisterDto);
+    user.role = RoleType.USER;
     await this.userRepository.save(user);
 
     return user;
