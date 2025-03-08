@@ -1,4 +1,3 @@
-import { IsOptional, IsPhoneNumber } from 'class-validator';
 import {
   EmailField,
   PasswordField,
@@ -6,19 +5,12 @@ import {
 } from '../../../decorators/field.decorators.ts';
 
 export class UserRegisterDto {
-  @StringField()
-  readonly firstName!: string;
-
-  @StringField()
-  readonly lastName!: string;
-
   @EmailField()
   readonly email!: string;
 
   @PasswordField({ minLength: 6 })
   readonly password!: string;
 
-  @IsPhoneNumber()
-  @IsOptional()
-  phone?: string;
+  @StringField()
+  readonly nickName!: string;
 }
