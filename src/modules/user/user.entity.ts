@@ -19,6 +19,9 @@ export class UserEntity extends AbstractEntity<UserDto, UserDtoOptions> {
   nickName!: string;
 
   @Column({ nullable: true, type: 'varchar' })
+  refreshToken!: string;
+
+  @Column({ nullable: true, type: 'varchar' })
   registerProvider!: string;
 
   @Column({ nullable: true, type: 'varchar', comment: 'SNS token' })
