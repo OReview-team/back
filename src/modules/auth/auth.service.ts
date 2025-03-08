@@ -21,15 +21,23 @@ export class AuthService {
   ) {}
 
   async createAccessToken(data: {
-    role: RoleType;
     userId: Uuid;
+    email: string;
+    role: RoleType;
+    profileImage: string;
+    registerProvider?: string;
+    registerProviderToken?: string;
   }): Promise<TokenPayloadDto> {
     return new TokenPayloadDto({
       expiresIn: this.configService.authConfig.jwtExpirationTime,
       accessToken: await this.jwtService.signAsync({
         userId: data.userId,
-        type: TokenType.ACCESS_TOKEN,
+        email: data.email,
         role: data.role,
+        profileImage: data.profileImage,
+        registerProvider: data.registerProvider,
+        registerProviderToken: data.registerProviderToken,
+        type: TokenType.ACCESS_TOKEN,
       }),
     });
   }
