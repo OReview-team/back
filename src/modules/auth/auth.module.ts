@@ -6,13 +6,14 @@ import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import { UserModule } from '../user/user.module.ts';
 import { AuthController } from './auth.controller.ts';
 import { AuthService } from './auth.service.ts';
+import { GoogleStrategy } from './google.strategy.ts';
 import { JwtStrategy } from './jwt.strategy.ts';
 import { PublicStrategy } from './public.strategy.ts';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: 'google' }),
     JwtModule.registerAsync({
       useFactory: (configService: ApiConfigService) => ({
         privateKey: configService.authConfig.privateKey,
@@ -33,7 +34,7 @@ import { PublicStrategy } from './public.strategy.ts';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, PublicStrategy],
+  providers: [AuthService, JwtStrategy, PublicStrategy, GoogleStrategy],
   exports: [JwtModule, AuthService],
 })
 export class AuthModule {}
