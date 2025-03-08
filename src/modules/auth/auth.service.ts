@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { validateHash } from '../../common/utils.ts';
+import { RegisterProviderType } from '../../constants/register-provider-type.ts';
 import { RoleType } from '../../constants/role-type.ts';
 import { TokenType } from '../../constants/token-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
@@ -69,7 +70,7 @@ export class AuthService {
         email,
         nickName: `${firstName}${lastName}`,
         profileImage: picture,
-        registerProvider: 'google',
+        registerProvider: RegisterProviderType.GOOGLE,
         registerProviderToken: accessToken,
       });
     }
@@ -79,7 +80,7 @@ export class AuthService {
       email,
       role: user.role,
       profileImage: user.profileImage,
-      registerProvider: 'google',
+      registerProvider: RegisterProviderType.GOOGLE,
       registerProviderToken: accessToken,
     });
 

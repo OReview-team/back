@@ -1,3 +1,5 @@
+import type { RegisterProviderType } from 'constants/register-provider-type.ts';
+
 import {
   EmailField,
   StringField,
@@ -12,7 +14,7 @@ export class SocialUserRegisterDto {
   readonly nickName!: string;
 
   @StringFieldOptional()
-  readonly registerProvider?: string;
+  readonly registerProvider?: RegisterProviderType;
 
   @StringFieldOptional()
   readonly registerProviderToken?: string;
