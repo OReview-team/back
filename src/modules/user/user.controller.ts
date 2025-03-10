@@ -7,7 +7,7 @@ import { Auth, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
 import { TranslationService } from '../../shared/services/translation.service.ts';
 import { UserDto } from './dtos/user.dto.ts';
-import { UserEntity } from './user.entity.ts';
+import { UserEntity } from './entities/user.entity.ts';
 import { UserService } from './user.service.ts';
 
 @Controller('users')

@@ -9,7 +9,7 @@ import { UserNotFoundException } from '../../exceptions/user-not-found.exception
 import { SocialUserRegisterDto } from '../auth/dto/social-user-register.dto.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
 import type { UserDto } from './dtos/user.dto.ts';
-import { UserEntity } from './user.entity.ts';
+import { UserEntity } from './entities/user.entity.ts';
 
 @Injectable()
 export class UserService {

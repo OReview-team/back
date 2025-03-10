@@ -5,7 +5,7 @@ import {
   EnumFieldOptional,
   StringFieldOptional,
 } from '../../../decorators/field.decorators.ts';
-import type { UserEntity } from '../user.entity.ts';
+import type { UserEntity } from '../entities/user.entity.ts';
 
 export type UserDtoOptions = Partial<{ isActive: boolean }>;
 

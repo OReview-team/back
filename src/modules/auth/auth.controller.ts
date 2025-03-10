@@ -17,7 +17,7 @@ import { RoleType } from '../../constants/role-type.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth } from '../../decorators/http.decorators.ts';
 import { UserDto } from '../user/dtos/user.dto.ts';
-import { UserEntity } from '../user/user.entity.ts';
+import { UserEntity } from '../user/entities/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import { AuthService } from './auth.service.ts';
 import type { IGoogleUser } from './dto/google-user.interface.ts';
