@@ -22,7 +22,7 @@ import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
-import { UserEntity } from '../user/user.entity.ts';
+import { UserEntity } from '../user/entities/user.entity.ts';
 import { CreatePostDto } from './dtos/create-post.dto.ts';
 import { PostDto } from './dtos/post.dto.ts';
 import { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';

@@ -1,34 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { plainToClass } from 'class-transformer';
 import type { FindOptionsWhere } from 'typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
-import type { PageDto } from '../../common/dto/page.dto.ts';
-import { FileNotImageException } from '../../exceptions/file-not-image.exception.ts';
+import { RoleType } from '../../constants/role-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
-import type { IFile } from '../../interfaces/IFile.ts';
-import { AwsS3Service } from '../../shared/services/aws-s3.service.ts';
-import { ValidatorService } from '../../shared/services/validator.service.ts';
-import type { Reference } from '../../types.ts';
+import { SocialUserRegisterDto } from '../auth/dto/social-user-register.dto.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
-import { CreateSettingsCommand } from './commands/create-settings.command.ts';
-import { CreateSettingsDto } from './dtos/create-settings.dto.ts';
 import type { UserDto } from './dtos/user.dto.ts';
-import type { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
-import { UserEntity } from './user.entity.ts';
-import type { UserSettingsEntity } from './user-settings.entity.ts';
+import { UserEntity } from './entities/user.entity.ts';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private validatorService: ValidatorService,
-    private awsS3Service: AwsS3Service,
-    private commandBus: CommandBus,
   ) {}
 
   /**
@@ -41,9 +28,7 @@ export class UserService {
   findByUsernameOrEmail(
     options: Partial<{ username: string; email: string }>,
   ): Promise<UserEntity | null> {
-    const queryBuilder = this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect<UserEntity, 'user'>('user.settings', 'settings');
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
 
     if (options.email) {
       queryBuilder.orWhere('user.email = :email', {
@@ -61,64 +46,33 @@ export class UserService {
   }
 
   @Transactional()
-  async createUser(
-    userRegisterDto: UserRegisterDto,
-    file?: Reference<IFile>,
-  ): Promise<UserEntity> {
+  async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
     const user = this.userRepository.create(userRegisterDto);
-
-    if (file && !this.validatorService.isImage(file.mimetype)) {
-      throw new FileNotImageException();
-    }
-
-    if (file) {
-      user.avatar = await this.awsS3Service.uploadImage(file);
-    }
-
+    user.role = RoleType.USER;
     await this.userRepository.save(user);
-
-    user.settings = await this.createSettings(
-      user.id,
-      plainToClass(CreateSettingsDto, {
-        isEmailVerified: false,
-        isPhoneVerified: false,
-      }),
-    );
-
-    console.log(user);
 
     return user;
   }
 
-  async getUsers(
-    pageOptionsDto: UsersPageOptionsDto,
-  ): Promise<PageDto<UserDto>> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-    const [items, pageMetaDto] = await queryBuilder.paginate(pageOptionsDto);
+  @Transactional()
+  async createSocialUser(socialUserRegisterDto: SocialUserRegisterDto) {
+    const user = this.userRepository.create(socialUserRegisterDto);
+    user.role = RoleType.USER;
+    await this.userRepository.save(user);
 
-    return items.toPageDto(pageMetaDto);
+    return user;
   }
 
   async getUser(userId: Uuid): Promise<UserDto> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-
-    queryBuilder.where('user.id = :userId', { userId });
-
-    const userEntity = await queryBuilder.getOne();
+    const userEntity = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['email', 'nickName', 'role'],
+    });
 
     if (!userEntity) {
       throw new UserNotFoundException();
     }
 
-    return userEntity.toDto();
-  }
-
-  createSettings(
-    userId: Uuid,
-    createSettingsDto: CreateSettingsDto,
-  ): Promise<UserSettingsEntity> {
-    return this.commandBus.execute<CreateSettingsCommand, UserSettingsEntity>(
-      new CreateSettingsCommand(userId, createSettingsDto),
-    );
+    return userEntity;
   }
 }
