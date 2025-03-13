@@ -13,6 +13,7 @@ import { UserService } from '../user/user.service.ts';
 import type { IGoogleUser } from './dto/google-user.interface.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import type { IRefreshTokenPayload } from './dto/refresh-token.interface.ts';
+import type { RegenerateAccessTokenDto } from './dto/regenerate-access-token.dto.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
 import type { UserLoginDto } from './dto/user-login.dto.ts';
 
@@ -101,7 +102,9 @@ export class AuthService {
     return new LoginPayloadDto(user, token);
   }
 
-  validateRefreshToken(user: UserEntity, refreshToken: string): boolean {
+  async regenerateAccessToken(
+    refreshToken: string,
+  ): Promise<RegenerateAccessTokenDto> {
     try {
       const decodedToken = this.jwtService.verify<IRefreshTokenPayload>(
         refreshToken,
@@ -114,13 +117,35 @@ export class AuthService {
         throw new ForbiddenException('refresh token 타입이 일치하지 않습니다.');
       }
 
+      const user = await this.userService.findOne({
+        id: decodedToken.userId,
+        refreshToken,
+      });
+
+      if (!user) {
+        throw new ForbiddenException('유효하지 않은 refresh token입니다.');
+      }
+
       if (user.refreshToken !== refreshToken) {
         throw new ForbiddenException('refresh token이 일치하지 않습니다.');
       }
+
+      const tokens = await this.createJwtToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage,
+        registerProvider: user.registerProvider,
+        registerProviderToken: user.registerProviderToken,
+      });
+
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user,
+      };
     } catch {
       throw new ForbiddenException('Invalid refresh token');
     }
-
-    return true;
   }
 }

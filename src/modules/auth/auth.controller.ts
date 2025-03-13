@@ -81,12 +81,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.USER, RoleType.ADMIN])
   @ApiOkResponse({ type: UserDto, description: 'current user info' })
-  getCurrentUser(
-    @AuthUser() user: UserEntity,
-    @Body() body: { refreshToken: string },
-  ): UserDto {
-    this.authService.validateRefreshToken(user, body.refreshToken);
-
+  getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();
   }
 
