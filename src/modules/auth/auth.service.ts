@@ -31,7 +31,6 @@ export class AuthService {
     registerProviderToken?: string;
   }): Promise<TokenPayloadDto> {
     return new TokenPayloadDto({
-      expiresIn: this.configService.authConfig.jwtExpirationTime,
       accessToken: await this.jwtService.signAsync({
         userId: data.userId,
         email: data.email,
