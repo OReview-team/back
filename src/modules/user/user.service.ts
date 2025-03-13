@@ -10,7 +10,6 @@ import { SocialUserRegisterDto } from '../auth/dto/social-user-register.dto.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
 import type { UserDto } from './dtos/user.dto.ts';
 import { UserEntity } from './entities/user.entity.ts';
-
 @Injectable()
 export class UserService {
   constructor(
@@ -49,9 +48,9 @@ export class UserService {
   async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
     const user = this.userRepository.create(userRegisterDto);
     user.role = RoleType.USER;
-    await this.userRepository.save(user);
+    const userEntity = await this.userRepository.save(user);
 
-    return user;
+    return userEntity;
   }
 
   @Transactional()
