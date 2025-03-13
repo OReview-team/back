@@ -22,7 +22,7 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async createAccessToken(data: {
+  async createJwtToken(data: {
     userId: Uuid;
     email: string;
     role: RoleType;
@@ -40,6 +40,11 @@ export class AuthService {
         registerProvider: data.registerProvider,
         registerProviderToken: data.registerProviderToken,
         type: TokenType.ACCESS_TOKEN,
+      }),
+      refreshToken: await this.jwtService.signAsync({
+        userId: data.userId,
+        expiredAt: this.configService.authConfig.jwtRefreshTokenExpirationTime,
+        type: TokenType.REFRESH_TOKEN,
       }),
     });
   }
@@ -75,7 +80,7 @@ export class AuthService {
       });
     }
 
-    const token = await this.createAccessToken({
+    const token = await this.createJwtToken({
       userId: user.id,
       email,
       role: user.role,
