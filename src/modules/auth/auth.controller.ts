@@ -44,7 +44,7 @@ export class AuthController {
   ): Promise<LoginPayloadDto> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
-    const token = await this.authService.createAccessToken({
+    const token = await this.authService.createJwtToken({
       userId: userEntity.id,
       email: userEntity.email,
       role: userEntity.role,
@@ -61,12 +61,19 @@ export class AuthController {
   @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
-  ): Promise<UserDto> {
-    const createdUser = await this.userService.createUser(userRegisterDto);
+  ): Promise<LoginPayloadDto> {
+    const userEntity = await this.userService.createUser(userRegisterDto);
 
-    return createdUser.toDto({
-      isActive: true,
+    const token = await this.authService.createJwtToken({
+      userId: userEntity.id,
+      email: userEntity.email,
+      role: userEntity.role,
+      profileImage: userEntity.profileImage,
+      registerProvider: userEntity.registerProvider,
+      registerProviderToken: userEntity.registerProviderToken,
     });
+
+    return new LoginPayloadDto(userEntity.toDto(), token);
   }
 
   @Version('1')
