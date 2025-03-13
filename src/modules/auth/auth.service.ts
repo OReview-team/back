@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { validateHash } from '../../common/utils.ts';
@@ -12,6 +12,7 @@ import type { UserEntity } from '../user/entities/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import type { IGoogleUser } from './dto/google-user.interface.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
+import type { IRefreshTokenPayload } from './dto/refresh-token.interface.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
 import type { UserLoginDto } from './dto/user-login.dto.ts';
 
@@ -98,5 +99,28 @@ export class AuthService {
     });
 
     return new LoginPayloadDto(user, token);
+  }
+
+  validateRefreshToken(user: UserEntity, refreshToken: string): boolean {
+    try {
+      const decodedToken = this.jwtService.verify<IRefreshTokenPayload>(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
+
+      if (decodedToken.type !== TokenType.REFRESH_TOKEN) {
+        throw new ForbiddenException('refresh token 타입이 일치하지 않습니다.');
+      }
+
+      if (user.refreshToken !== refreshToken) {
+        throw new ForbiddenException('refresh token이 일치하지 않습니다.');
+      }
+    } catch {
+      throw new ForbiddenException('Invalid refresh token');
+    }
+
+    return true;
   }
 }
