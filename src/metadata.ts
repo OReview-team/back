@@ -7,15 +7,16 @@ export default async () => {
     ['./modules/post/dtos/post-translation.dto']: await import(
       './modules/post/dtos/post-translation.dto'
     ),
-    ['./modules/user/user.entity']: await import(
+    ['./modules/user/entities/user.entity']: await import(
       './modules/user/entities/user.entity'
     ),
     ['./modules/post/post-translation.entity']: await import(
       './modules/post/post-translation.entity'
     ),
     ['./constants/role-type']: await import('./constants/role-type'),
-    ['./constants/order']: await import('./constants/order'),
-    ['./common/dto/page-meta.dto']: await import('./common/dto/page-meta.dto'),
+    ['./constants/register-provider-type']: await import(
+      './constants/register-provider-type'
+    ),
     ['./modules/user/dtos/user.dto']: await import(
       './modules/user/dtos/user.dto'
     ),
@@ -25,6 +26,8 @@ export default async () => {
     ['./common/dto/create-translation.dto']: await import(
       './common/dto/create-translation.dto'
     ),
+    ['./constants/order']: await import('./constants/order'),
+    ['./common/dto/page-meta.dto']: await import('./common/dto/page-meta.dto'),
     ['./modules/auth/dto/login-payload.dto']: await import(
       './modules/auth/dto/login-payload.dto'
     ),
@@ -120,7 +123,7 @@ export default async () => {
               userId: { required: true, type: () => Object },
               user: {
                 required: true,
-                type: () => t['./modules/user/user.entity'].UserEntity,
+                type: () => t['./modules/user/entities/user.entity'].UserEntity,
               },
               translations: {
                 required: false,
@@ -136,56 +139,127 @@ export default async () => {
           import('./modules/user/dtos/user.dto'),
           {
             UserDto: {
-              firstName: {
-                required: false,
-                type: () => String,
-                nullable: true,
-              },
-              lastName: { required: false, type: () => String, nullable: true },
-              username: { required: true, type: () => String },
+              email: { required: false, type: () => String, nullable: true },
+              nickName: { required: true, type: () => String },
               role: {
                 required: false,
                 enum: t['./constants/role-type'].RoleType,
               },
-              email: { required: false, type: () => String, nullable: true },
-              avatar: { required: false, type: () => String, nullable: true },
-              phone: { required: false, type: () => String, nullable: true },
-              isActive: { required: false, type: () => Boolean },
             },
           },
         ],
-        // [
-        //   import('./modules/user/user-settings.entity'),
-        //   {
-        //     UserSettingsEntity: {
-        //       isEmailVerified: { required: false, type: () => Boolean },
-        //       isPhoneVerified: { required: false, type: () => Boolean },
-        //       userId: { required: false, type: () => String },
-        //       user: {
-        //         required: false,
-        //         type: () => t['./modules/user/user.entity'].UserEntity,
-        //       },
-        //     },
-        //   },
-        // ],
         [
           import('./modules/user/entities/user.entity'),
           {
             UserEntity: {
-              firstName: { required: true, type: () => String, nullable: true },
-              lastName: { required: true, type: () => String, nullable: true },
+              email: { required: true, type: () => String },
+              password: { required: false, type: () => String, nullable: true },
+              nickName: { required: true, type: () => String },
+              refreshToken: { required: true, type: () => String },
+              registerProvider: { required: true, type: () => String },
+              registerProviderToken: { required: true, type: () => String },
+              profileImage: { required: true, type: () => String },
               role: {
                 required: true,
                 enum: t['./constants/role-type'].RoleType,
               },
-              email: { required: true, type: () => String, nullable: true },
-              password: { required: true, type: () => String, nullable: true },
-              phone: { required: true, type: () => String, nullable: true },
-              avatar: { required: true, type: () => String, nullable: true },
-              fullName: { required: true, type: () => String },
               posts: {
                 required: false,
                 type: () => [t['./modules/post/post.entity'].PostEntity],
+              },
+            },
+          },
+        ],
+        [
+          import('./modules/auth/dto/social-user-register.dto'),
+          {
+            SocialUserRegisterDto: {
+              email: { required: true, type: () => String },
+              nickName: { required: true, type: () => String },
+              registerProvider: {
+                required: false,
+                type: () => String,
+                enum: t['./constants/register-provider-type']
+                  .RegisterProviderType,
+              },
+              registerProviderToken: { required: false, type: () => String },
+              profileImage: { required: false, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./modules/auth/dto/user-register.dto'),
+          {
+            UserRegisterDto: {
+              email: { required: true, type: () => String },
+              password: { required: true, type: () => String },
+              nickName: { required: true, type: () => String },
+              profileImage: { required: false, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./modules/auth/dto/token-payload.dto'),
+          {
+            TokenPayloadDto: {
+              expiresIn: { required: true, type: () => Number },
+              accessToken: { required: true, type: () => String },
+              refreshToken: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./modules/auth/dto/login-payload.dto'),
+          {
+            LoginPayloadDto: {
+              user: {
+                required: true,
+                type: () => t['./modules/user/dtos/user.dto'].UserDto,
+              },
+              token: {
+                required: true,
+                type: () =>
+                  t['./modules/auth/dto/token-payload.dto'].TokenPayloadDto,
+              },
+            },
+          },
+        ],
+        [
+          import('./modules/auth/dto/user-login.dto'),
+          {
+            UserLoginDto: {
+              email: { required: true, type: () => String },
+              password: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./common/dto/create-translation.dto'),
+          {
+            CreateTranslationDto: {
+              languageCode: {
+                required: true,
+                enum: t['./constants/language-code'].LanguageCode,
+              },
+              text: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import('./modules/post/dtos/create-post.dto'),
+          {
+            CreatePostDto: {
+              title: {
+                required: true,
+                type: () => [
+                  t['./common/dto/create-translation.dto'].CreateTranslationDto,
+                ],
+              },
+              description: {
+                required: true,
+                type: () => [
+                  t['./common/dto/create-translation.dto'].CreateTranslationDto,
+                ],
               },
             },
           },
@@ -227,91 +301,14 @@ export default async () => {
           },
         ],
         [
-          import('./modules/user/dtos/users-page-options.dto'),
-          { UsersPageOptionsDto: {} },
-        ],
-        [
-          import('./modules/auth/dto/user-register.dto'),
-          {
-            UserRegisterDto: {
-              firstName: { required: true, type: () => String },
-              lastName: { required: true, type: () => String },
-              email: { required: true, type: () => String },
-              password: { required: true, type: () => String },
-              phone: { required: false, type: () => String },
-            },
-          },
-        ],
-        [
-          import('./modules/auth/dto/token-payload.dto'),
-          {
-            TokenPayloadDto: {
-              expiresIn: { required: true, type: () => Number },
-              accessToken: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
-          import('./modules/auth/dto/user-login.dto'),
-          {
-            UserLoginDto: {
-              email: { required: true, type: () => String },
-              password: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
-          import('./modules/auth/dto/login-payload.dto'),
-          {
-            LoginPayloadDto: {
-              user: {
-                required: true,
-                type: () => t['./modules/user/dtos/user.dto'].UserDto,
-              },
-              token: {
-                required: true,
-                type: () =>
-                  t['./modules/auth/dto/token-payload.dto'].TokenPayloadDto,
-              },
-            },
-          },
-        ],
-        [
-          import('./common/dto/create-translation.dto'),
-          {
-            CreateTranslationDto: {
-              languageCode: {
-                required: true,
-                enum: t['./constants/language-code'].LanguageCode,
-              },
-              text: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
-          import('./modules/post/dtos/create-post.dto'),
-          {
-            CreatePostDto: {
-              title: {
-                required: true,
-                type: () => [
-                  t['./common/dto/create-translation.dto'].CreateTranslationDto,
-                ],
-              },
-              description: {
-                required: true,
-                type: () => [
-                  t['./common/dto/create-translation.dto'].CreateTranslationDto,
-                ],
-              },
-            },
-          },
-        ],
-        [
           import('./modules/post/dtos/post-page-options.dto'),
           { PostPageOptionsDto: {} },
         ],
         [import('./modules/post/dtos/update-post.dto'), { UpdatePostDto: {} }],
+        [
+          import('./modules/user/dtos/users-page-options.dto'),
+          { UsersPageOptionsDto: {} },
+        ],
       ],
       controllers: [
         [
@@ -319,7 +316,6 @@ export default async () => {
           {
             UserController: {
               admin: {},
-              getUsers: {},
               getUser: { type: t['./modules/user/dtos/user.dto'].UserDto },
             },
           },
@@ -331,9 +327,15 @@ export default async () => {
               userLogin: {
                 type: t['./modules/auth/dto/login-payload.dto'].LoginPayloadDto,
               },
-              userRegister: { type: t['./modules/user/dtos/user.dto'].UserDto },
+              userRegister: {
+                type: t['./modules/auth/dto/login-payload.dto'].LoginPayloadDto,
+              },
               getCurrentUser: {
                 type: t['./modules/user/dtos/user.dto'].UserDto,
+              },
+              googleAuth: {},
+              googleAuthRedirect: {
+                type: t['./modules/auth/dto/login-payload.dto'].LoginPayloadDto,
               },
             },
           },
