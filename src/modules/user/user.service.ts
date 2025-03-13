@@ -8,6 +8,7 @@ import { RoleType } from '../../constants/role-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { SocialUserRegisterDto } from '../auth/dto/social-user-register.dto.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
+import type { UpdateUserDto } from './dtos/update-user.dto.ts';
 import type { UserDto } from './dtos/user.dto.ts';
 import { UserEntity } from './entities/user.entity.ts';
 @Injectable()
@@ -71,6 +72,26 @@ export class UserService {
     if (!userEntity) {
       throw new UserNotFoundException();
     }
+
+    return userEntity;
+  }
+
+  async updateUser(userId: Uuid, userDto: UpdateUserDto): Promise<UserDto> {
+    const userEntity = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!userEntity) {
+      throw new UserNotFoundException();
+    }
+
+    for (const [key, value] of Object.entries(userDto)) {
+      if (value !== undefined) {
+        userEntity[key as keyof UserEntity] = value as never;
+      }
+    }
+
+    await this.userRepository.save(userEntity);
 
     return userEntity;
   }

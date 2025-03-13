@@ -6,6 +6,7 @@ import { RegisterProviderType } from '../../constants/register-provider-type.ts'
 import { RoleType } from '../../constants/role-type.ts';
 import { TokenType } from '../../constants/token-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
+import { UpdateUserDto } from '../../modules/user/dtos/update-user.dto.ts';
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import type { UserEntity } from '../user/entities/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
@@ -30,7 +31,7 @@ export class AuthService {
     registerProvider?: string;
     registerProviderToken?: string;
   }): Promise<TokenPayloadDto> {
-    return new TokenPayloadDto({
+    const tokens = new TokenPayloadDto({
       accessToken: await this.jwtService.signAsync({
         userId: data.userId,
         email: data.email,
@@ -46,6 +47,14 @@ export class AuthService {
         type: TokenType.REFRESH_TOKEN,
       }),
     });
+
+    const userDto = new UpdateUserDto({
+      refreshToken: tokens.refreshToken,
+    } as UserEntity);
+
+    await this.userService.updateUser(data.userId, userDto);
+
+    return tokens;
   }
 
   async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity> {
