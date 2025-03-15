@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import type { Request } from 'express';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
 
 import { TokenType } from '../../constants/token-type.ts';
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private userService: UserService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req) => (req as Request).cookies.accessToken as string,
       secretOrKey: configService.authConfig.publicKey,
     });
   }
@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return user;
     }
 
-    const { refreshToken } = req.body as { refreshToken: string };
+    const refreshToken = req.cookies.refreshToken as string;
 
     if (!refreshToken) {
       throw new UnauthorizedException('refresh token이 존재하지 않습니다.');
