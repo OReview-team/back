@@ -42,7 +42,8 @@ export class AuthController {
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
-  ): Promise<LoginPayloadDto> {
+    @Res() response: Response,
+  ): Promise<void> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
     const token = await this.authService.createJwtToken({
@@ -54,7 +55,19 @@ export class AuthController {
       registerProviderToken: userEntity.registerProviderToken,
     });
 
-    return new LoginPayloadDto(userEntity.toDto(), token);
+    response.cookie('refreshToken', token.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    response.cookie('accessToken', token.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    response.status(HttpStatus.OK).json({ message: '로그인 성공' });
   }
 
   @Post('register')
@@ -88,14 +101,16 @@ export class AuthController {
     });
 
     response.status(HttpStatus.OK).json({ message: 'Successfully Registered' });
-    // return new LoginPayloadDto(userEntity.toDto(), token);
   }
 
   @Version('1')
   @Get('me')
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.USER, RoleType.ADMIN])
-  @ApiOkResponse({ type: UserDto, description: 'current user info' })
+  @ApiOkResponse({
+    type: UserDto,
+    description: '현재 로그인한 유저의 정보(비밀번호 제외)',
+  })
   getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();
   }
