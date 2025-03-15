@@ -1,9 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { validateHash } from '../../common/utils.ts';
 import { RegisterProviderType } from '../../constants/register-provider-type.ts';
-import { RoleType } from '../../constants/role-type.ts';
+// import { RoleType } from '../../constants/role-type.ts';
 import { TokenType } from '../../constants/token-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { UpdateUserDto } from '../../modules/user/dtos/update-user.dto.ts';
@@ -11,8 +11,8 @@ import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import type { UserEntity } from '../user/entities/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import type { IGoogleUser } from './dto/google-user.interface.ts';
-import type { IRefreshTokenPayload } from './dto/refresh-token.interface.ts';
-import type { RegenerateAccessTokenDto } from './dto/regenerate-access-token.dto.ts';
+// import type { IRefreshTokenPayload } from './dto/refresh-token.interface.ts';
+// import type { RegenerateAccessTokenDto } from './dto/regenerate-access-token.dto.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
 import type { UserLoginDto } from './dto/user-login.dto.ts';
 
@@ -24,23 +24,16 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async createJwtToken(data: {
-    userId: Uuid;
-    email: string;
-    role: RoleType;
-    profileImage: string;
-    registerProvider?: string;
-    registerProviderToken?: string;
-  }): Promise<TokenPayloadDto> {
+  async createJwtToken(user: UserEntity): Promise<TokenPayloadDto> {
     const tokens = new TokenPayloadDto({
       accessToken: await this.jwtService.signAsync(
         {
-          userId: data.userId,
-          email: data.email,
-          role: data.role,
-          profileImage: data.profileImage,
-          registerProvider: data.registerProvider,
-          registerProviderToken: data.registerProviderToken,
+          userId: user.id,
+          email: user.email,
+          role: user.role,
+          profileImage: user.profileImage,
+          registerProvider: user.registerProvider,
+          registerProviderToken: user.registerProviderToken,
           type: TokenType.ACCESS_TOKEN,
         },
         {
@@ -50,7 +43,7 @@ export class AuthService {
       ),
       refreshToken: await this.jwtService.signAsync(
         {
-          userId: data.userId,
+          userId: user.id,
           expiredAt:
             this.configService.authConfig.jwtRefreshTokenExpirationTime,
           type: TokenType.REFRESH_TOKEN,
@@ -67,7 +60,7 @@ export class AuthService {
       refreshToken: tokens.refreshToken,
     } as UserEntity);
 
-    await this.userService.updateUser(data.userId, userDto);
+    await this.userService.updateUser(user.id, userDto);
 
     return tokens;
   }
@@ -103,60 +96,42 @@ export class AuthService {
       });
     }
 
-    return this.createJwtToken({
-      userId: user.id,
-      email,
-      role: user.role,
-      profileImage: user.profileImage,
-      registerProvider: RegisterProviderType.GOOGLE,
-      registerProviderToken: accessToken,
-    });
+    return this.createJwtToken(user);
   }
 
-  async regenerateAccessToken(
-    refreshToken: string,
-  ): Promise<RegenerateAccessTokenDto> {
-    try {
-      const decodedToken = this.jwtService.verify<IRefreshTokenPayload>(
-        refreshToken,
-        {
-          secret: process.env.JWT_REFRESH_SECRET,
-        },
-      );
+  //   async regenerateAccessToken(
+  //     user: UserEntity,
+  //   ): Promise<RegenerateAccessTokenDto> {
+  //     try {
+  //       const user = await this.userService.findOne({
+  //         id: decodedToken.userId,
+  //         refreshToken,
+  //       });
 
-      if (decodedToken.type !== TokenType.REFRESH_TOKEN) {
-        throw new ForbiddenException('refresh token 타입이 일치하지 않습니다.');
-      }
+  //       if (!user) {
+  //         throw new ForbiddenException('유효하지 않은 refresh token입니다.');
+  //       }
 
-      const user = await this.userService.findOne({
-        id: decodedToken.userId,
-        refreshToken,
-      });
+  //       if (user.refreshToken !== refreshToken) {
+  //         throw new ForbiddenException('refresh token이 일치하지 않습니다.');
+  //       }
 
-      if (!user) {
-        throw new ForbiddenException('유효하지 않은 refresh token입니다.');
-      }
+  //       const tokens = await this.createJwtToken({
+  //         userId: user.id,
+  //         email: user.email,
+  //         role: user.role,
+  //         profileImage: user.profileImage,
+  //         registerProvider: user.registerProvider,
+  //         registerProviderToken: user.registerProviderToken,
+  //       });
 
-      if (user.refreshToken !== refreshToken) {
-        throw new ForbiddenException('refresh token이 일치하지 않습니다.');
-      }
-
-      const tokens = await this.createJwtToken({
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        profileImage: user.profileImage,
-        registerProvider: user.registerProvider,
-        registerProviderToken: user.registerProviderToken,
-      });
-
-      return {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        user,
-      };
-    } catch {
-      throw new ForbiddenException('Invalid refresh token');
-    }
-  }
+  //       return {
+  //         accessToken: tokens.accessToken,
+  //         refreshToken: tokens.refreshToken,
+  //         user,
+  //       };
+  //     } catch {
+  //       throw new ForbiddenException('Invalid refresh token');
+  //     }
+  //   }
 }

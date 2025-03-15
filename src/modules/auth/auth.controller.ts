@@ -47,14 +47,7 @@ export class AuthController {
   ): Promise<void> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
-    const tokens = await this.authService.createJwtToken({
-      userId: userEntity.id,
-      email: userEntity.email,
-      role: userEntity.role,
-      profileImage: userEntity.profileImage,
-      registerProvider: userEntity.registerProvider,
-      registerProviderToken: userEntity.registerProviderToken,
-    });
+    const tokens = await this.authService.createJwtToken(userEntity);
 
     setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
 
@@ -70,14 +63,7 @@ export class AuthController {
   ): Promise<void> {
     const userEntity = await this.userService.createUser(userRegisterDto);
 
-    const tokens = await this.authService.createJwtToken({
-      userId: userEntity.id,
-      email: userEntity.email,
-      role: userEntity.role,
-      profileImage: userEntity.profileImage,
-      registerProvider: userEntity.registerProvider,
-      registerProviderToken: userEntity.registerProviderToken,
-    });
+    const tokens = await this.authService.createJwtToken(userEntity);
 
     setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
 
