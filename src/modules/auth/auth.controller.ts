@@ -25,6 +25,7 @@ import type { IGoogleUser } from './dto/google-user.interface.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { UserLoginDto } from './dto/user-login.dto.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
+import { setAuthCookies } from './utils/cookie.utils.ts';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -46,7 +47,7 @@ export class AuthController {
   ): Promise<void> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
-    const token = await this.authService.createJwtToken({
+    const tokens = await this.authService.createJwtToken({
       userId: userEntity.id,
       email: userEntity.email,
       role: userEntity.role,
@@ -55,17 +56,7 @@ export class AuthController {
       registerProviderToken: userEntity.registerProviderToken,
     });
 
-    response.cookie('refreshToken', token.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
-
-    response.cookie('accessToken', token.accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
+    setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
 
     response.status(HttpStatus.OK).json({ message: '로그인 성공' });
   }
@@ -79,7 +70,7 @@ export class AuthController {
   ): Promise<void> {
     const userEntity = await this.userService.createUser(userRegisterDto);
 
-    const token = await this.authService.createJwtToken({
+    const tokens = await this.authService.createJwtToken({
       userId: userEntity.id,
       email: userEntity.email,
       role: userEntity.role,
@@ -88,17 +79,7 @@ export class AuthController {
       registerProviderToken: userEntity.registerProviderToken,
     });
 
-    response.cookie('refreshToken', token.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
-
-    response.cookie('accessToken', token.accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
+    setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
 
     response.status(HttpStatus.OK).json({ message: 'Successfully Registered' });
   }
@@ -126,7 +107,12 @@ export class AuthController {
   @ApiOkResponse({ description: 'google Oauth register' })
   async googleAuthRedirect(
     @Req() req: Request & { user: IGoogleUser },
-  ): Promise<LoginPayloadDto> {
-    return this.authService.googleLogin(req.user);
+    @Res() response: Response,
+  ): Promise<void> {
+    const tokens = await this.authService.googleLogin(req.user);
+
+    setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
+
+    response.status(HttpStatus.OK).json({ message: 'SNS 로그인 완료' });
   }
 }

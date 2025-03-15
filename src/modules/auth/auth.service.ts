@@ -11,7 +11,6 @@ import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import type { UserEntity } from '../user/entities/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import type { IGoogleUser } from './dto/google-user.interface.ts';
-import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import type { IRefreshTokenPayload } from './dto/refresh-token.interface.ts';
 import type { RegenerateAccessTokenDto } from './dto/regenerate-access-token.dto.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
@@ -76,7 +75,7 @@ export class AuthService {
     return user!;
   }
 
-  async googleLogin(googleUser: IGoogleUser): Promise<LoginPayloadDto> {
+  async googleLogin(googleUser: IGoogleUser): Promise<TokenPayloadDto> {
     const { email, picture, firstName, lastName, accessToken } = googleUser;
     let user = await this.userService.findOne({ email });
 
@@ -90,7 +89,7 @@ export class AuthService {
       });
     }
 
-    const token = await this.createJwtToken({
+    return this.createJwtToken({
       userId: user.id,
       email,
       role: user.role,
@@ -98,8 +97,6 @@ export class AuthService {
       registerProvider: RegisterProviderType.GOOGLE,
       registerProviderToken: accessToken,
     });
-
-    return new LoginPayloadDto(user, token);
   }
 
   async regenerateAccessToken(
