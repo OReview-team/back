@@ -6,12 +6,13 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
   Version,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
 import { RoleType } from '../../constants/role-type.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
@@ -61,7 +62,8 @@ export class AuthController {
   @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
-  ): Promise<LoginPayloadDto> {
+    @Res() response: Response,
+  ): Promise<void> {
     const userEntity = await this.userService.createUser(userRegisterDto);
 
     const token = await this.authService.createJwtToken({
@@ -73,7 +75,20 @@ export class AuthController {
       registerProviderToken: userEntity.registerProviderToken,
     });
 
-    return new LoginPayloadDto(userEntity.toDto(), token);
+    response.cookie('refreshToken', token.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    response.cookie('accessToken', token.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    response.status(HttpStatus.OK).json({ message: 'Successfully Registered' });
+    // return new LoginPayloadDto(userEntity.toDto(), token);
   }
 
   @Version('1')
