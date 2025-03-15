@@ -33,20 +33,34 @@ export class AuthService {
     registerProviderToken?: string;
   }): Promise<TokenPayloadDto> {
     const tokens = new TokenPayloadDto({
-      accessToken: await this.jwtService.signAsync({
-        userId: data.userId,
-        email: data.email,
-        role: data.role,
-        profileImage: data.profileImage,
-        registerProvider: data.registerProvider,
-        registerProviderToken: data.registerProviderToken,
-        type: TokenType.ACCESS_TOKEN,
-      }),
-      refreshToken: await this.jwtService.signAsync({
-        userId: data.userId,
-        expiredAt: this.configService.authConfig.jwtRefreshTokenExpirationTime,
-        type: TokenType.REFRESH_TOKEN,
-      }),
+      accessToken: await this.jwtService.signAsync(
+        {
+          userId: data.userId,
+          email: data.email,
+          role: data.role,
+          profileImage: data.profileImage,
+          registerProvider: data.registerProvider,
+          registerProviderToken: data.registerProviderToken,
+          type: TokenType.ACCESS_TOKEN,
+        },
+        {
+          privateKey: this.configService.authConfig.privateKey,
+          expiresIn: this.configService.authConfig.jwtAccessTokenExpirationTime,
+        },
+      ),
+      refreshToken: await this.jwtService.signAsync(
+        {
+          userId: data.userId,
+          expiredAt:
+            this.configService.authConfig.jwtRefreshTokenExpirationTime,
+          type: TokenType.REFRESH_TOKEN,
+        },
+        {
+          privateKey: this.configService.authConfig.privateKey,
+          expiresIn:
+            this.configService.authConfig.jwtRefreshTokenExpirationTime,
+        },
+      ),
     });
 
     const userDto = new UpdateUserDto({
