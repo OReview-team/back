@@ -23,6 +23,7 @@ import { setupSwagger } from './setup-swagger.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
 import { TranslationService } from './shared/services/translation.service.ts';
 import { SharedModule } from './shared/shared.module.ts';
+import * as cookieParser from 'cookie-parser';
 
 export async function bootstrap(): Promise<NestExpressApplication> {
   initializeTransactionalContext();
@@ -37,6 +38,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   app.use(compression());
   app.use(morgan('combined'));
   app.enableVersioning();
+  app.use(cookieParser.default());
 
   const reflector = app.get(Reflector);
 
