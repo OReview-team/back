@@ -83,7 +83,7 @@ export class AuthService {
     if (!user) {
       user = await this.userService.createSocialUser({
         email,
-        nickName: `${firstName}${lastName}`,
+        nickName: `${firstName}${lastName}`, // 자동으로 닉네임을 구글에서 제공하는 이름과 성을 조합했지만 개인정보이므로 무작위 닉네임 혹은 nickName을 nullable로 만들어줄 예정
         profileImage: picture,
         registerProvider: RegisterProviderType.GOOGLE,
         registerProviderToken: accessToken,
