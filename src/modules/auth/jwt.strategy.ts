@@ -47,6 +47,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const result = await this.authService.regenerateAccessToken(refreshToken);
 
     req.headers['access-token'] = result.accessToken;
+
     req.headers['refresh-token'] = result.refreshToken;
 
     return result.user;
