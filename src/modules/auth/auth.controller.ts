@@ -6,12 +6,13 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
   Version,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
 import { RoleType } from '../../constants/role-type.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
@@ -24,6 +25,7 @@ import type { IGoogleUser } from './dto/google-user.interface.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { UserLoginDto } from './dto/user-login.dto.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
+import { setAuthCookies } from './utils/cookie.utils.ts';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -41,19 +43,15 @@ export class AuthController {
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
-  ): Promise<LoginPayloadDto> {
+    @Res() response: Response,
+  ): Promise<void> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
-    const token = await this.authService.createJwtToken({
-      userId: userEntity.id,
-      email: userEntity.email,
-      role: userEntity.role,
-      profileImage: userEntity.profileImage,
-      registerProvider: userEntity.registerProvider,
-      registerProviderToken: userEntity.registerProviderToken,
-    });
+    const tokens = await this.authService.createJwtToken(userEntity);
 
-    return new LoginPayloadDto(userEntity.toDto(), token);
+    setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
+
+    response.status(HttpStatus.OK).json({ message: '로그인 성공' });
   }
 
   @Post('register')
@@ -61,26 +59,25 @@ export class AuthController {
   @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
-  ): Promise<LoginPayloadDto> {
+    @Res() response: Response,
+  ): Promise<void> {
     const userEntity = await this.userService.createUser(userRegisterDto);
 
-    const token = await this.authService.createJwtToken({
-      userId: userEntity.id,
-      email: userEntity.email,
-      role: userEntity.role,
-      profileImage: userEntity.profileImage,
-      registerProvider: userEntity.registerProvider,
-      registerProviderToken: userEntity.registerProviderToken,
-    });
+    const tokens = await this.authService.createJwtToken(userEntity);
 
-    return new LoginPayloadDto(userEntity.toDto(), token);
+    setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
+
+    response.status(HttpStatus.OK).json({ message: 'Successfully Registered' });
   }
 
   @Version('1')
   @Get('me')
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.USER, RoleType.ADMIN])
-  @ApiOkResponse({ type: UserDto, description: 'current user info' })
+  @ApiOkResponse({
+    type: UserDto,
+    description: '현재 로그인한 유저의 정보(비밀번호 제외)',
+  })
   getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();
   }
@@ -96,7 +93,12 @@ export class AuthController {
   @ApiOkResponse({ description: 'google Oauth register' })
   async googleAuthRedirect(
     @Req() req: Request & { user: IGoogleUser },
-  ): Promise<LoginPayloadDto> {
-    return this.authService.googleLogin(req.user);
+    @Res() response: Response,
+  ): Promise<void> {
+    const tokens = await this.authService.googleLogin(req.user);
+
+    setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
+
+    response.status(HttpStatus.OK).json({ message: 'SNS 로그인 완료' });
   }
 }

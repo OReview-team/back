@@ -33,6 +33,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       accessToken,
       refreshToken,
     };
+
+    // 유저의 프로필이 유효하면 아래의 함수를 호출 후 인증상태로 만들어줌
     done(null, user);
   }
 }

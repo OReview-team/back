@@ -7,14 +7,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import type { Type } from '@nestjs/common/interfaces';
-import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
+import type { RoleType } from '../constants/role-type.ts';
 import { AuthGuard } from '../guards/auth.guard.ts';
 import { RolesGuard } from '../guards/roles.guard.ts';
 import { AuthUserInterceptor } from '../interceptors/auth-user-interceptor.service.ts';
+import { SetCookieInterceptor } from '../interceptors/set-cookie-interceptor.service.ts';
 import { PublicRoute } from './public-route.decorator.ts';
 import { Roles } from './roles.decorator.ts';
-import type { RoleType } from '../constants/role-type.ts';
 
 export function Auth(
   roles: RoleType[] = [],
@@ -25,8 +26,9 @@ export function Auth(
   return applyDecorators(
     Roles(roles),
     UseGuards(AuthGuard({ public: isPublicRoute }), RolesGuard),
-    ApiBearerAuth(),
-    UseInterceptors(AuthUserInterceptor),
+    // ApiBearerAuth(),
+    ApiCookieAuth(),
+    UseInterceptors(AuthUserInterceptor, SetCookieInterceptor),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
     PublicRoute(isPublicRoute),
   );
