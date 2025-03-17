@@ -5,10 +5,9 @@ import {
   DynamicTranslate,
   StaticTranslate,
 } from '../../../decorators/translate.decorator.ts';
-import type { PostEntity } from '../post.entity.ts';
-import { PostTranslationDto } from './post-translation.dto.ts';
+import type { ReviewEntity } from '../review.entity.ts';
 
-export class PostDto extends AbstractDto {
+export class ReviewDto extends AbstractDto {
   @ApiPropertyOptional()
   @DynamicTranslate()
   title?: string;
@@ -20,10 +19,7 @@ export class PostDto extends AbstractDto {
   @StaticTranslate()
   info: string;
 
-  @ApiPropertyOptional({ type: PostTranslationDto, isArray: true })
-  declare translations?: PostTranslationDto[];
-
-  constructor(postEntity: PostEntity) {
+  constructor(postEntity: ReviewEntity) {
     super(postEntity);
 
     this.info = 'keywords.admin';

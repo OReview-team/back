@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Post,
   Put,
-  Query,
 } from '@nestjs/common';
 import {
   ApiAcceptedResponse,
@@ -16,55 +15,52 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import type { PageDto } from '../../common/dto/page.dto.ts';
 import { RoleType } from '../../constants/role-type.ts';
 import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
 import { UserEntity } from '../user/entities/user.entity.ts';
-import { CreatePostDto } from './dtos/create-post.dto.ts';
-import { PostDto } from './dtos/post.dto.ts';
-import { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
-import { UpdatePostDto } from './dtos/update-post.dto.ts';
-import { PostService } from './post.service.ts';
+import { CreateReviewDto } from './dtos/create-review.dto.ts';
+import { ReviewDto } from './dtos/review.dto.ts';
+import { UpdateReviewDto } from './dtos/update-review.dto.ts';
+import type { ReviewEntity } from './review.entity.ts';
+import { ReviewService } from './review.service.ts';
 
-@Controller('posts')
-@ApiTags('posts')
-export class PostController {
-  constructor(private postService: PostService) {}
+@Controller('reviews')
+@ApiTags('reviews')
+export class ReviewController {
+  constructor(private postService: ReviewService) {}
 
   @Post()
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ type: PostDto })
-  async createPost(
-    @Body() createPostDto: CreatePostDto,
+  @ApiCreatedResponse({ type: ReviewDto })
+  async createReview(
+    @Body() createReviewDto: CreateReviewDto,
     @AuthUser() user: UserEntity,
   ) {
-    const postEntity = await this.postService.createPost(
+    const reviewEntity = await this.postService.createReview(
       user.id,
-      createPostDto,
+      createReviewDto,
     );
 
-    return postEntity.toDto();
+    return reviewEntity.toDto();
   }
 
   @Get()
   @Auth([RoleType.USER])
   @UseLanguageInterceptor()
-  @ApiPageResponse({ type: PostDto })
-  async getPosts(
-    @Query() postsPageOptionsDto: PostPageOptionsDto,
-  ): Promise<PageDto<PostDto>> {
-    return this.postService.getAllPost(postsPageOptionsDto);
+  @ApiPageResponse({ type: ReviewDto })
+  async getReviewList(): Promise<ReviewEntity[]> {
+    return this.postService.getReviewList();
   }
 
   @Get(':id')
   @Auth([])
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: PostDto })
-  async getSinglePost(@UUIDParam('id') id: Uuid): Promise<PostDto> {
+  @ApiOkResponse({ type: ReviewDto })
+  async getSinglePost(@UUIDParam('id') id: Uuid): Promise<ReviewDto> {
     const entity = await this.postService.getSinglePost(id);
 
     return entity.toDto();
@@ -75,7 +71,7 @@ export class PostController {
   @ApiAcceptedResponse()
   updatePost(
     @UUIDParam('id') id: Uuid,
-    @Body() updatePostDto: UpdatePostDto,
+    @Body() updatePostDto: UpdateReviewDto,
   ): Promise<void> {
     return this.postService.updatePost(id, updatePostDto);
   }
