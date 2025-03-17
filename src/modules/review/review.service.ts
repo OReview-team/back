@@ -5,8 +5,8 @@ import { Transactional } from 'typeorm-transactional';
 
 import { CreateReviewDto } from './dtos/create-review.dto.ts';
 import type { UpdateReviewDto } from './dtos/update-review.dto.ts';
+import { ReviewEntity } from './entities/review.entity.ts';
 import { ReviewNotFoundException } from './exceptions/review-not-found.exception.ts';
-import { ReviewEntity } from './review.entity.ts';
 
 @Injectable()
 export class ReviewService {

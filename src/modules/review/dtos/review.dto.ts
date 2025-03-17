@@ -5,7 +5,7 @@ import {
   DynamicTranslate,
   StaticTranslate,
 } from '../../../decorators/translate.decorator.ts';
-import type { ReviewEntity } from '../review.entity.ts';
+import type { ReviewEntity } from '../entities/review.entity.ts';
 
 export class ReviewDto extends AbstractDto {
   @ApiPropertyOptional()

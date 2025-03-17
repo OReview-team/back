@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../../common/abstract.entity.ts';
 import { RoleType } from '../../../constants/role-type.ts';
 import { UseDto } from '../../../decorators/use-dto.decorator.ts';
-import { ReviewEntity } from '../../review/review.entity.ts';
+import { ReviewEntity } from '../../review/entities/review.entity.ts';
 import type { UserDtoOptions } from '../dtos/user.dto.ts';
 import { UserDto } from '../dtos/user.dto.ts';
 

@@ -3,7 +3,7 @@ import { QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ReviewEntity } from '../review.entity.ts';
+import { ReviewEntity } from '../entities/review.entity.ts';
 import { GetReviewQuery } from './get-review.query.ts';
 
 @QueryHandler(GetReviewQuery)

@@ -24,7 +24,7 @@ import { UserEntity } from '../user/entities/user.entity.ts';
 import { CreateReviewDto } from './dtos/create-review.dto.ts';
 import { ReviewDto } from './dtos/review.dto.ts';
 import { UpdateReviewDto } from './dtos/update-review.dto.ts';
-import type { ReviewEntity } from './review.entity.ts';
+import type { ReviewEntity } from './entities/review.entity.ts';
 import { ReviewService } from './review.service.ts';
 
 @Controller('reviews')
