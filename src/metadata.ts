@@ -3,15 +3,11 @@ export default async () => {
   const t = {
     ['./common/dto/abstract.dto']: await import('./common/dto/abstract.dto'),
     ['./constants/language-code']: await import('./constants/language-code'),
-    ['./modules/post/post.entity']: await import('./modules/post/post.entity'),
-    ['./modules/post/dtos/post-translation.dto']: await import(
-      './modules/post/dtos/post-translation.dto'
+    ['./modules/review/review.entity']: await import(
+      './modules/review/review.entity'
     ),
     ['./modules/user/entities/user.entity']: await import(
       './modules/user/entities/user.entity'
-    ),
-    ['./modules/post/post-translation.entity']: await import(
-      './modules/post/post-translation.entity'
     ),
     ['./constants/role-type']: await import('./constants/role-type'),
     ['./constants/register-provider-type']: await import(
@@ -31,8 +27,8 @@ export default async () => {
     ['./modules/auth/dto/login-payload.dto']: await import(
       './modules/auth/dto/login-payload.dto'
     ),
-    ['./modules/post/dtos/post.dto']: await import(
-      './modules/post/dtos/post.dto'
+    ['./modules/review/dtos/review.dto']: await import(
+      './modules/review/dtos/review.dto'
     ),
   };
   return {
@@ -73,64 +69,13 @@ export default async () => {
           },
         ],
         [
-          import('./modules/post/post-translation.entity'),
+          import('./modules/review/review.entity'),
           {
-            PostTranslationEntity: {
-              title: { required: true, type: () => String },
-              description: { required: true, type: () => String },
-              postId: { required: true, type: () => Object },
-              post: {
-                required: false,
-                type: () => t['./modules/post/post.entity'].PostEntity,
-              },
-            },
-          },
-        ],
-        [
-          import('./modules/post/dtos/post-translation.dto'),
-          {
-            PostTranslationDto: {
-              title: { required: false, type: () => String },
-              description: { required: false, type: () => String },
-              languageCode: {
-                required: false,
-                enum: t['./constants/language-code'].LanguageCode,
-              },
-            },
-          },
-        ],
-        [
-          import('./modules/post/dtos/post.dto'),
-          {
-            PostDto: {
-              title: { required: false, type: () => String },
-              description: { required: false, type: () => String },
-              info: { required: true, type: () => String },
-              translations: {
-                required: false,
-                type: () => [
-                  t['./modules/post/dtos/post-translation.dto']
-                    .PostTranslationDto,
-                ],
-              },
-            },
-          },
-        ],
-        [
-          import('./modules/post/post.entity'),
-          {
-            PostEntity: {
+            ReviewEntity: {
               userId: { required: true, type: () => Object },
               user: {
                 required: true,
                 type: () => t['./modules/user/entities/user.entity'].UserEntity,
-              },
-              translations: {
-                required: false,
-                type: () => [
-                  t['./modules/post/post-translation.entity']
-                    .PostTranslationEntity,
-                ],
               },
             },
           },
@@ -165,7 +110,7 @@ export default async () => {
               },
               posts: {
                 required: false,
-                type: () => [t['./modules/post/post.entity'].PostEntity],
+                type: () => [t['./modules/review/review.entity'].ReviewEntity],
               },
             },
           },
@@ -246,7 +191,7 @@ export default async () => {
           },
         ],
         [
-          import('./modules/post/dtos/create-post.dto'),
+          import('./modules/review/dtos/create-review.dto'),
           {
             CreatePostDto: {
               title: {
@@ -301,10 +246,13 @@ export default async () => {
           },
         ],
         [
-          import('./modules/post/dtos/post-page-options.dto'),
+          import('./modules/review/dtos/review-page-options.dto'),
           { PostPageOptionsDto: {} },
         ],
-        [import('./modules/post/dtos/update-post.dto'), { UpdatePostDto: {} }],
+        [
+          import('./modules/review/dtos/update-review.dto'),
+          { UpdatePostDto: {} },
+        ],
         [
           import('./modules/user/dtos/users-page-options.dto'),
           { UsersPageOptionsDto: {} },
@@ -345,13 +293,15 @@ export default async () => {
           { HealthCheckerController: { check: { type: Object } } },
         ],
         [
-          import('./modules/post/post.controller'),
+          import('./modules/review/review.controller'),
           {
             PostController: {
-              createPost: { type: t['./modules/post/dtos/post.dto'].PostDto },
+              createPost: {
+                type: t['./modules/review/dtos/review.dto'].ReviewDto,
+              },
               getPosts: {},
               getSinglePost: {
-                type: t['./modules/post/dtos/post.dto'].PostDto,
+                type: t['./modules/review/dtos/review.dto'].ReviewDto,
               },
               updatePost: {},
               deletePost: {},
