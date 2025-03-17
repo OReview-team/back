@@ -4,7 +4,7 @@ export default async () => {
     ['./common/dto/abstract.dto']: await import('./common/dto/abstract.dto'),
     ['./constants/language-code']: await import('./constants/language-code'),
     ['./modules/review/review.entity']: await import(
-      './modules/review/review.entity'
+      './modules/review/entities/review.entity'
     ),
     ['./modules/user/entities/user.entity']: await import(
       './modules/user/entities/user.entity'
@@ -69,7 +69,7 @@ export default async () => {
           },
         ],
         [
-          import('./modules/review/review.entity'),
+          import('./modules/review/entities/review.entity'),
           {
             ReviewEntity: {
               userId: { required: true, type: () => Object },
