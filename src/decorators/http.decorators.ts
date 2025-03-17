@@ -13,6 +13,7 @@ import type { RoleType } from '../constants/role-type.ts';
 import { AuthGuard } from '../guards/auth.guard.ts';
 import { RolesGuard } from '../guards/roles.guard.ts';
 import { AuthUserInterceptor } from '../interceptors/auth-user-interceptor.service.ts';
+import { SetCookieInterceptor } from '../interceptors/set-cookie-interceptor.service.ts';
 import { PublicRoute } from './public-route.decorator.ts';
 import { Roles } from './roles.decorator.ts';
 
@@ -27,7 +28,7 @@ export function Auth(
     UseGuards(AuthGuard({ public: isPublicRoute }), RolesGuard),
     // ApiBearerAuth(),
     ApiCookieAuth(),
-    UseInterceptors(AuthUserInterceptor),
+    UseInterceptors(AuthUserInterceptor, SetCookieInterceptor),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
     PublicRoute(isPublicRoute),
   );
