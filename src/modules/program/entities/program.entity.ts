@@ -5,6 +5,7 @@ import { UseDto } from '../../../decorators/use-dto.decorator.ts';
 import { ReviewEntity } from '../../review/entities/review.entity.ts';
 import { ProgramDto } from '../dtos/program.dto.ts';
 import { GenreEntity } from './genre.entity.ts';
+import { WatchProviderEntity } from './watch-provider.entity.ts';
 
 @Entity({ name: 'programs' })
 @UseDto(ProgramDto)
@@ -47,9 +48,23 @@ export class ProgramEntity extends AbstractEntity<ProgramDto> {
 
   @ManyToMany(() => GenreEntity, (genre) => genre.programs)
   @JoinTable({
-    name: 'program_genres',
+    name: 'genres_programs',
     joinColumn: { name: 'program_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'genre_id', referencedColumnName: 'id' },
   })
   genres!: GenreEntity[];
+
+  @ManyToMany(
+    () => WatchProviderEntity,
+    (watchProvider) => watchProvider.programs,
+  )
+  @JoinTable({
+    name: 'watch_providers_programs',
+    joinColumn: { name: 'program_id', referencedColumnName: 'id' },
+    inverseJoinColumn: {
+      name: 'watch_provider_id',
+      referencedColumnName: 'id',
+    },
+  })
+  watchProviders!: WatchProviderEntity[];
 }
