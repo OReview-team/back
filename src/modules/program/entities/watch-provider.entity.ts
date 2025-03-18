@@ -8,7 +8,7 @@ import { ProgramEntity } from './program.entity.ts';
 @Entity({ name: 'watch_providers' })
 @UseDto(ProgramDto)
 export class WatchProviderEntity extends AbstractEntity<ProgramDto> {
-  @Column({ type: 'int' })
+  @Column({ type: 'int', comment: 'TMDB에서 제공하는 provider_id' })
   originId!: number;
 
   @Column({ type: 'varchar' })

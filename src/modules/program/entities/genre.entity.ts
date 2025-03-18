@@ -8,7 +8,7 @@ import { ProgramEntity } from './program.entity.ts';
 @Entity({ name: 'genres' })
 @UseDto(ProgramDto)
 export class GenreEntity extends AbstractEntity<ProgramDto> {
-  @Column({ type: 'int' })
+  @Column({ type: 'int', comment: 'TMDB에서 제공하는 id' })
   originId!: number;
 
   @Column({ type: 'varchar' })
