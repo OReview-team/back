@@ -1,11 +1,12 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 
 import { AbstractEntity } from '../../../common/abstract.entity.ts';
 import { UseDto } from '../../../decorators/use-dto.decorator.ts';
 import { ReviewEntity } from '../../review/entities/review.entity.ts';
 import { ProgramDto } from '../dtos/program.dto.ts';
+import { GenreEntity } from './genre.entity.ts';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'programs' })
 @UseDto(ProgramDto)
 export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'int' })
@@ -43,4 +44,12 @@ export class ProgramEntity extends AbstractEntity<ProgramDto> {
 
   @OneToMany(() => ReviewEntity, (reviewEntity) => reviewEntity.program)
   reviews?: ReviewEntity[];
+
+  @ManyToMany(() => GenreEntity, (genre) => genre.programs)
+  @JoinTable({
+    name: 'program_genres',
+    joinColumn: { name: 'program_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'genre_id', referencedColumnName: 'id' },
+  })
+  genres!: GenreEntity[];
 }
