@@ -16,6 +16,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 
 import { AuthModule } from './modules/auth/auth.module.ts';
 import { HealthCheckerModule } from './modules/health-checker/health-checker.module.ts';
+import { ProgramModule } from './modules/program/program.module.ts';
 import { ReviewModule } from './modules/review/review.module.ts';
 import { UserModule } from './modules/user/user.module.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
@@ -26,6 +27,8 @@ import { SharedModule } from './shared/shared.module.ts';
     AuthModule,
     UserModule,
     ReviewModule,
+    HealthCheckerModule,
+    ProgramModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
@@ -75,7 +78,6 @@ import { SharedModule } from './shared/shared.module.ts';
       imports: [SharedModule],
       inject: [ApiConfigService],
     }),
-    HealthCheckerModule,
   ],
   providers: [],
 })

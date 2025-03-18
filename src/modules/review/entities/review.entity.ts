@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { AbstractEntity } from '../../../common/abstract.entity.ts';
 import { UseDto } from '../../../decorators/use-dto.decorator.ts';
+import { ProgramEntity } from '../../program/entities/program.entity.ts';
 import { UserEntity } from '../../user/entities/user.entity.ts';
 import { ReviewDto } from '../dtos/review.dto.ts';
 
@@ -18,4 +19,11 @@ export class ReviewEntity extends AbstractEntity<ReviewDto> {
   })
   @JoinColumn({ name: 'user_id' })
   user!: Relation<UserEntity>;
+
+  @ManyToOne(() => ProgramEntity, (programEntity) => programEntity.reviews, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'program_id' })
+  program!: Relation<ProgramEntity>;
 }
