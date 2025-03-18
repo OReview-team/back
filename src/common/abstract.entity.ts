@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -33,8 +34,17 @@ export abstract class AbstractEntity<
 
   @UpdateDateColumn({
     type: 'timestamp',
+    nullable: true,
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt!: Date;
+  updatedAt!: Date | null;
+
+  @DeleteDateColumn({
+    type: 'timestamp',
+    nullable: true,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  deletedAt!: Date | null;
 
   translations?: AbstractTranslationEntity[];
 
