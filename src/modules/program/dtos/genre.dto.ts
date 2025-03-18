@@ -1,8 +1,8 @@
 import { AbstractDto } from '../../../common/dto/abstract.dto.ts';
 import {
   NumberField,
-  NumberFieldOptional,
   StringField,
+  UUIDFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 import type { GenreEntity } from '../entities/genre.entity.ts';
 
@@ -13,7 +13,7 @@ export class GenreDto extends AbstractDto {
   @StringField()
   name!: string;
 
-  @NumberFieldOptional({ isArray: true, nullable: true })
+  @UUIDFieldOptional({ nullable: true })
   programIds?: Uuid[];
 
   constructor(genre: GenreEntity) {

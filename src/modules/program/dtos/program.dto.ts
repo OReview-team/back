@@ -6,6 +6,7 @@ import {
   NumberField,
   NumberFieldOptional,
   StringField,
+  UUIDFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 
 export class ProgramDto extends AbstractDto {
@@ -39,6 +40,12 @@ export class ProgramDto extends AbstractDto {
   @DateField()
   firstAirDate!: Date;
 
+  @NumberFieldOptional({ isArray: true, nullable: true })
+  genreIds?: Uuid[];
+
+  @UUIDFieldOptional({ nullable: true })
+  watchProviderIds?: Uuid[];
+
   constructor(program: ProgramEntity) {
     super(program);
     this.originId = program.originId;
@@ -51,5 +58,9 @@ export class ProgramDto extends AbstractDto {
     this.voteCount = program.voteCount;
     this.releaseDate = program.releaseDate;
     this.firstAirDate = program.firstAirDate;
+    this.genreIds = program.genres.map((genre) => genre.id);
+    this.watchProviderIds = program.watchProviders.map(
+      (watchProvider) => watchProvider.id,
+    );
   }
 }
