@@ -149,6 +149,13 @@ export class ApiConfigService {
     };
   }
 
+  getTMDBConfig() {
+    return {
+      apiKey: this.getString('TMDB_API_KEY'),
+      urlBase: this.getString('TMDB_URL_BASE'),
+    };
+  }
+
   private get(key: string): string {
     const value = this.configService.get<string>(key);
 
