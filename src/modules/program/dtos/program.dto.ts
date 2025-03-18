@@ -19,7 +19,7 @@ export class ProgramDto extends AbstractDto {
   overview!: string;
 
   @StringField()
-  originCountry!: Date;
+  originCountry!: string;
 
   @StringField()
   backdropPath!: string;
@@ -31,7 +31,7 @@ export class ProgramDto extends AbstractDto {
   voteAverage!: number | null;
 
   @NumberFieldOptional({ nullable: true })
-  voteCount!: string;
+  voteCount!: number | null;
 
   @DateField()
   releaseDate!: Date;
@@ -41,8 +41,15 @@ export class ProgramDto extends AbstractDto {
 
   constructor(program: ProgramEntity) {
     super(program);
+    this.originId = program.originId;
     this.name = program.name;
     this.overview = program.overview;
     this.originCountry = program.originCountry;
+    this.backdropPath = program.backdropPath;
+    this.posterPath = program.posterPath;
+    this.voteAverage = program.voteAverage;
+    this.voteCount = program.voteCount;
+    this.releaseDate = program.releaseDate;
+    this.firstAirDate = program.firstAirDate;
   }
 }

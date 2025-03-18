@@ -17,8 +17,8 @@ export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'varchar' })
   overview!: string;
 
-  @Column({ type: 'timestamp', comment: '제작 국가' })
-  originCountry!: Date;
+  @Column({ type: 'varchar', comment: '제작 국가' })
+  originCountry!: string;
 
   @Column({ type: 'varchar', comment: '원작 제목' })
   originName!: string;
