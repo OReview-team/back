@@ -39,7 +39,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     type: LoginPayloadDto,
-    description: 'User info with access token',
+    description: '일반 로그인 성공',
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
@@ -51,12 +51,12 @@ export class AuthController {
 
     setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
 
-    response.status(HttpStatus.OK).json({ message: '로그인 성공' });
+    response.status(HttpStatus.OK).json({ message: '일반 로그인 성공' });
   }
 
   @Post('register')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
+  @ApiOkResponse({ type: UserDto, description: '일반 회원가입 성공' })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
     @Res() response: Response,
@@ -67,7 +67,9 @@ export class AuthController {
 
     setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
 
-    response.status(HttpStatus.OK).json({ message: 'Successfully Registered' });
+    response
+      .status(HttpStatus.OK)
+      .json({ message: '일반 회원가입이 완료되었습니다.' });
   }
 
   @Version('1')
