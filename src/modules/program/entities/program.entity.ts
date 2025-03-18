@@ -8,14 +8,23 @@ import { ProgramDto } from '../dtos/program.dto.ts';
 @Entity({ name: 'users' })
 @UseDto(ProgramDto)
 export class ProgramEntity extends AbstractEntity<ProgramDto> {
+  @Column({ type: 'int' })
+  originId!: number;
+
   @Column({ type: 'varchar' })
-  title!: string;
+  name!: string;
 
   @Column({ type: 'varchar' })
   overview!: string;
 
   @Column({ type: 'timestamp', comment: '제작 국가' })
   originCountry!: Date;
+
+  @Column({ type: 'varchar', comment: '원작 제목' })
+  originName!: string;
+
+  @Column({ type: 'varchar' })
+  backdropPath!: string;
 
   @Column({ type: 'varchar' })
   posterPath!: string;
