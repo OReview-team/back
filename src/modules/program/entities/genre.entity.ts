@@ -14,6 +14,9 @@ export class GenreEntity extends AbstractEntity<GenreDto> {
   @Column({ type: 'varchar' })
   name!: string;
 
+  @Column({ type: 'varchar', comment: 'TV OR MOVIE' })
+  program!: string;
+
   @ManyToMany(() => ProgramEntity, (program) => program.genres)
   programs!: ProgramEntity[];
 }
