@@ -19,11 +19,11 @@ import { ProgramService } from './program.service.ts';
       provide: 'TMDB_CONFIG',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const tmdbApiKey: string =
-          configService.get<string>('TMDB_API_KEY') ?? '';
+        const tmdbApiKey: string | undefined =
+          configService.get<string>('TMDB_API_KEY');
 
-        const tmdbUrl: string =
-          configService.get<string>('TMDB_URL_BASE') ?? '';
+        const tmdbUrl: string | undefined =
+          configService.get<string>('TMDB_URL_BASE');
 
         if (!tmdbApiKey || !tmdbUrl) {
           throw new Error(
