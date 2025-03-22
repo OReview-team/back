@@ -1,4 +1,8 @@
-import { DateField, UUIDField } from '../../decorators/field.decorators.ts';
+import {
+  DateField,
+  DateFieldOptional,
+  UUIDField,
+} from '../../decorators/field.decorators.ts';
 import { DYNAMIC_TRANSLATION_DECORATOR_KEY } from '../../decorators/translate.decorator.ts';
 import { ContextProvider } from '../../providers/context.provider.ts';
 import type { AbstractEntity } from '../abstract.entity.ts';
@@ -10,8 +14,11 @@ export class AbstractDto {
   @DateField()
   createdAt!: Date;
 
-  @DateField()
-  updatedAt!: Date;
+  @DateFieldOptional()
+  updatedAt?: Date | null;
+
+  @DateFieldOptional()
+  deletedAt?: Date | null;
 
   translations?: AbstractTranslationDto[];
 
@@ -20,6 +27,7 @@ export class AbstractDto {
       this.id = entity.id;
       this.createdAt = entity.createdAt;
       this.updatedAt = entity.updatedAt;
+      this.deletedAt = entity.deletedAt;
     }
 
     const languageCode = ContextProvider.getLanguage();
