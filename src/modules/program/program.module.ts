@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,6 +12,12 @@ import { ProgramService } from './program.service.ts';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProgramEntity, GenreEntity, WatchProviderEntity]),
+    HttpModule.registerAsync({
+      useFactory: () => ({
+        timeout: 5000,
+        maxRedirects: 5,
+      }),
+    }),
   ],
   controllers: [ProgramController],
   providers: [
@@ -38,5 +45,6 @@ import { ProgramService } from './program.service.ts';
       },
     },
   ],
+  exports: [HttpModule],
 })
 export class ProgramModule {}
