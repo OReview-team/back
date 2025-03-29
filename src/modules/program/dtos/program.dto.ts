@@ -11,7 +11,7 @@ import {
 
 export class ProgramDto extends AbstractDto {
   @NumberField()
-  originId!: number;
+  tmdbProgramId!: number;
 
   @StringField()
   name!: string;
@@ -48,7 +48,7 @@ export class ProgramDto extends AbstractDto {
 
   constructor(program: ProgramEntity) {
     super(program);
-    this.originId = program.originId;
+    this.tmdbProgramId = program.tmdbProgramId;
     this.name = program.name;
     this.overview = program.overview;
     this.originCountry = program.originCountry;
