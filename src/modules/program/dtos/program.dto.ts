@@ -3,13 +3,18 @@ import type { ProgramEntity } from 'modules/program/entities/program.entity.ts';
 import { AbstractDto } from '../../../common/dto/abstract.dto.ts';
 import {
   DateField,
+  EnumField,
   NumberField,
   NumberFieldOptional,
   StringField,
   UUIDFieldOptional,
 } from '../../../decorators/field.decorators.ts';
+import { ProgramEnumType } from '../consts/program-type.const.ts';
 
 export class ProgramDto extends AbstractDto {
+  @EnumField(() => ProgramEnumType)
+  programType!: ProgramEnumType;
+
   @NumberField()
   tmdbProgramId!: number;
 
