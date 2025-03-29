@@ -9,10 +9,13 @@ import { ProgramEntity } from './program.entity.ts';
 @UseDto(WatchProviderDto)
 export class WatchProviderEntity extends AbstractEntity<WatchProviderDto> {
   @Column({ type: 'int', comment: 'TMDB에서 제공하는 provider_id' })
-  originId!: number;
+  tmdbProviderId!: number;
 
   @Column({ type: 'varchar' })
   name!: string;
+
+  @Column({ type: 'varchar' })
+  logoPath!: string;
 
   @ManyToMany(() => ProgramEntity, (program) => program.watchProviders)
   programs!: ProgramEntity[];
