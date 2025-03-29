@@ -1,6 +1,7 @@
 import {
   EnumFieldOptional,
   NumberField,
+  NumberFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 import {
   ProgramEnumType,
@@ -16,4 +17,7 @@ export class CreateProgramDto {
 
   @NumberField()
   readonly page!: number;
+
+  @NumberFieldOptional()
+  readonly watchProviderId!: number;
 }
