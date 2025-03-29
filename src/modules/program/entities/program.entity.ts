@@ -3,6 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../../common/abstract.entity.ts';
 import { UseDto } from '../../../decorators/use-dto.decorator.ts';
 import { ReviewEntity } from '../../review/entities/review.entity.ts';
+import type { ProgramEnumType } from '../consts/program-type.const.ts';
 import { ProgramDto } from '../dtos/program.dto.ts';
 import { GenreEntity } from './genre.entity.ts';
 import { WatchProviderEntity } from './watch-provider.entity.ts';
@@ -12,6 +13,9 @@ import { WatchProviderEntity } from './watch-provider.entity.ts';
 export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'int', comment: 'TMDB에서 제공하는 id' })
   originId!: number;
+
+  @Column({ type: 'varchar', comment: 'movie or tv' })
+  programType!: ProgramEnumType;
 
   @Column({ type: 'varchar' })
   name!: string;
