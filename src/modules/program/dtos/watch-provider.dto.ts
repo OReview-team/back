@@ -8,18 +8,22 @@ import type { WatchProviderEntity } from '../entities/watch-provider.entity.ts';
 
 export class WatchProviderDto extends AbstractDto {
   @NumberField()
-  originId!: number;
+  tmdbProviderId!: number;
 
   @StringField()
   name!: string;
+
+  @StringField()
+  logoPath!: string;
 
   @NumberFieldOptional({ isArray: true, nullable: true })
   programIds?: Uuid[];
 
   constructor(watchProvider: WatchProviderEntity) {
     super(watchProvider);
-    this.originId = watchProvider.originId;
+    this.tmdbProviderId = watchProvider.tmdbProviderId;
     this.name = watchProvider.name;
+    this.logoPath = watchProvider.logoPath;
     this.programIds = watchProvider.programs.map((program) => program.id);
   }
 }
