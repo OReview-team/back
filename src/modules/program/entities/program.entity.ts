@@ -12,7 +12,7 @@ import { WatchProviderEntity } from './watch-provider.entity.ts';
 @UseDto(ProgramDto)
 export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'int', comment: 'TMDB에서 제공하는 id' })
-  originId!: number;
+  tmdbProgramId!: number;
 
   @Column({ type: 'varchar', comment: 'movie or tv' })
   programType!: ProgramEnumType;
