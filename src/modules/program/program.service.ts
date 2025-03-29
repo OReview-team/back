@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import type { Repository } from 'typeorm';
+import { In, type Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { HttpService } from '@nestjs/axios';
 
@@ -13,6 +13,12 @@ import {
   type ITmdbWatchProvider,
 } from './dtos/tmdb-watch-providers-response.interface.ts';
 import type { WatchProviderDto } from './dtos/watch-provider.dto.ts';
+import type {
+  ITmdbMovieList,
+  ITmdbTvList,
+} from './dtos/tmdb-program.interface.ts';
+import { ProgramDto } from './dtos/program.dto.ts';
+import { mapProgramDtoToEntity } from './mappers/program.mapper.ts';
 
 @Injectable()
 export class ProgramService {
@@ -30,13 +36,74 @@ export class ProgramService {
 
   @Transactional()
   async createProgram(createProgramDto: CreateProgramDto) {
-    // 1. 검색하기
-    // 2. 검색 결과로
-    // ===== axios 같은 패키지 설치 후 해야할 것 ======
-    // 1. api call 설정하기
-    // 2. 비동기 api call package설치하기
-    // 3. api call 되는지 확인하기
-    // === 호출 성공 후 해야할 것 ===
+    try {
+      const programUrl = `${this.tmdbConfig.tmdbUrl}discover/${createProgramDto.programType}`;
+
+      const programResponse = await this.httpService.axiosRef.get(programUrl, {
+        headers: {
+          Authorization: this.tmdbConfig.tmdbApiKey,
+          accept: 'application/json',
+        },
+        params: {
+          watch_region: 'KR',
+          sort_by: createProgramDto.sortBy ?? undefined,
+          page: createProgramDto.page,
+          with_watch_providers:
+            createProgramDto.tmdbWatchProviderId ?? undefined,
+        },
+      });
+
+      const tmdbProgramList: ITmdbMovieList[] | ITmdbTvList[] =
+        programResponse.data?.results ?? [];
+
+      if (tmdbProgramList.length > 0) {
+        throw new Error('TMDB에 검색한 결과가 존재하지 않습니다.');
+      }
+
+      // 이미 존재하는 프로그램인지 확인 후 존재하는 프로그램만 리스트에서 삭제
+      const existingPrograms = (
+        await this.programRepository.find({
+          where: {
+            tmdbProgramId: In(tmdbProgramList.map((p) => p.id)),
+            programType: createProgramDto.programType,
+          },
+        })
+      ).map((p) => p.tmdbProgramId);
+
+      const genreList = await this.genreRepository.find();
+      const watchProviderId = await this.watchProviderRepository.findOne({
+        where: { tmdbProviderId: createProgramDto.tmdbWatchProviderId },
+        select: ['id'],
+      });
+
+      if (!watchProviderId || !watchProviderId.id) {
+        throw new Error('OTT id를 찾을 수 없었습니다.');
+      }
+
+      const saveProgramList = tmdbProgramList
+        .filter((p) => !existingPrograms.includes(p.id))
+        .map((p) => {
+          const programDto = new ProgramDto(
+            p,
+            createProgramDto.programType,
+            genreList,
+            watchProviderId.id,
+          );
+
+          const programEntity = mapProgramDtoToEntity(
+            programDto,
+            genreList,
+            watchProviderId,
+          );
+          return programEntity;
+        });
+
+      const savedPrograms = this.programRepository.create(saveProgramList);
+
+      return savedPrograms;
+    } catch {
+      throw new Error();
+    }
   }
 
   /**

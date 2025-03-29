@@ -10,6 +10,7 @@ import {
   UUIDFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 import { ProgramEnumType } from '../consts/program-type.const.ts';
+import type { GenreEntity } from '../entities/genre.entity.ts';
 import type { ITmdbMovieList, ITmdbTvList } from './tmdb-program.interface.ts';
 
 export class ProgramDto {
@@ -62,13 +63,13 @@ export class ProgramDto {
   genreIds?: Uuid[];
 
   @UUIDFieldOptional({ nullable: true })
-  watchProviderIds?: Uuid[];
+  watchProviderId?: Uuid | null;
 
   constructor(
     program: ITmdbMovieList | ITmdbTvList,
     programType: ProgramEnumType,
-    genreIds: Uuid[],
-    watchProviderIds: Uuid[],
+    genreList: GenreEntity[],
+    tmdbWatchProviderId: Uuid | null,
   ) {
     this.programType = programType;
     this.tmdbProgramId = program.id;
@@ -84,7 +85,9 @@ export class ProgramDto {
       'release_date' in program ? new Date(program.release_date) : null;
     this.firstAirDate =
       'first_air_date' in program ? new Date(program.first_air_date) : null;
-    this.genreIds = genreIds;
-    this.watchProviderIds = watchProviderIds;
+    this.genreIds = genreList
+      .filter((genre) => program.genre_ids?.includes(genre.originId))
+      .map((genre) => genre.id);
+    this.watchProviderId = tmdbWatchProviderId;
   }
 }
