@@ -1,7 +1,19 @@
-import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
-import type { ProgramEnumType } from '../consts/program-type.const.ts';
+import {
+  EnumFieldOptional,
+  NumberField,
+} from '../../../decorators/field.decorators.ts';
+import {
+  ProgramEnumType,
+  TmdbProgramSortType,
+} from '../consts/program-type.const.ts';
 
 export class CreateProgramDto {
-  @StringFieldOptional()
+  @EnumFieldOptional(() => ProgramEnumType)
   readonly programType!: ProgramEnumType;
+
+  @EnumFieldOptional(() => TmdbProgramSortType)
+  readonly sortBy!: TmdbProgramSortType;
+
+  @NumberField()
+  readonly page!: number;
 }
