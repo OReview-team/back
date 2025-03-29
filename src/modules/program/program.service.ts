@@ -8,6 +8,11 @@ import type { CreateProgramDto } from './dtos/create-program.dto';
 import { GenreEntity } from './entities/genre.entity.ts';
 import { ProgramEntity } from './entities/program.entity.ts';
 import { WatchProviderEntity } from './entities/watch-provider.entity.ts';
+import {
+  WatchProviderResponseDto,
+  type ITmdbWatchProvider,
+} from './dtos/tmdb-watch-providers-response.interface.ts';
+import type { WatchProviderDto } from './dtos/watch-provider.dto.ts';
 
 @Injectable()
 export class ProgramService {
@@ -34,7 +39,56 @@ export class ProgramService {
     // === 호출 성공 후 해야할 것 ===
   }
 
-  async createWatchProviders() {}
+  /**
+   * 거의 일회성 API - 삭제해도 될 것 같지만 일단 놔둠, movie만 호출한 이유는 tv와 값이 다르지 않아서
+   * 중복된 내용이라 한 가지만 검색
+   * @returns 저장된 OTT 서비스 배열
+   */
+  async createWatchProviders(): Promise<WatchProviderDto[]> {
+    try {
+      const movieWatchProvidersUrl = `${this.tmdbConfig.tmdbUrl}watch/providers/movie`;
+
+      const movieResponse = await this.httpService.axiosRef.get(
+        movieWatchProvidersUrl,
+        {
+          params: {
+            api_key: this.tmdbConfig.tmdbApiKey,
+            watch_region: 'KR',
+          },
+        },
+      );
+
+      // API 반환 값을 변수에 할당 후 DB에 저장될 수 있도록 DTO로 인스턴스를 생성해 값을 변환해준다.
+      const movieWatchProviders: ITmdbWatchProvider[] =
+        movieResponse?.data.results ?? [];
+
+      const existingWatchProviderList =
+        await this.watchProviderRepository.find();
+
+      const movieWatchProvidersDtos: WatchProviderResponseDto[] = [];
+      if (movieWatchProviders.length > 0) {
+        movieWatchProviders.forEach((provider) => {
+          const existingWatchProvider = existingWatchProviderList.find(
+            (per) => per.tmdbProviderId === provider.provider_id,
+          );
+          if (!existingWatchProvider) {
+            movieWatchProvidersDtos.push(
+              new WatchProviderResponseDto(provider),
+            );
+          }
+        });
+      }
+
+      // 변환된 값을 저장해줌
+      const savedWatchProviders = await Promise.all([
+        this.watchProviderRepository.save(movieWatchProvidersDtos),
+      ]);
+
+      return savedWatchProviders.flat();
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
 
   @Transactional()
   async createGenres(): Promise<GenreEntity[]> {

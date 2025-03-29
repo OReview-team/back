@@ -6,6 +6,7 @@ import { Auth } from '../../decorators/http.decorators.ts';
 import { CreateProgramDto } from './dtos/create-program.dto.ts';
 import { ProgramDto } from './dtos/program.dto.ts';
 import { ProgramService } from './program.service.ts';
+import type { WatchProviderDto } from './dtos/watch-provider.dto.ts';
 
 @Controller('program')
 export class ProgramController {
@@ -24,5 +25,12 @@ export class ProgramController {
   @ApiCreatedResponse()
   async createGenreList() {
     return await this.programService.createGenres();
+  }
+
+  @Post('watch_provider')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse()
+  async createWatchProviders(): Promise<WatchProviderDto[]> {
+    return await this.programService.createWatchProviders();
   }
 }
