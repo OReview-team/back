@@ -1,17 +1,30 @@
-import type { ProgramEntity } from 'modules/program/entities/program.entity.ts';
-
-import { AbstractDto } from '../../../common/dto/abstract.dto.ts';
 import {
   DateField,
+  DateFieldOptional,
   EnumField,
   NumberField,
   NumberFieldOptional,
   StringField,
+  StringFieldOptional,
+  UUIDField,
   UUIDFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 import { ProgramEnumType } from '../consts/program-type.const.ts';
+import type { ITmdbMovieList, ITmdbTvList } from './tmdb-program.interface.ts';
 
-export class ProgramDto extends AbstractDto {
+export class ProgramDto {
+  @UUIDField()
+  id!: Uuid;
+
+  @DateField()
+  createdAt!: Date;
+
+  @DateFieldOptional()
+  updatedAt?: Date | null;
+
+  @DateFieldOptional()
+  deletedAt?: Date | null;
+
   @EnumField(() => ProgramEnumType)
   programType!: ProgramEnumType;
 
@@ -27,8 +40,8 @@ export class ProgramDto extends AbstractDto {
   @StringField()
   originCountry!: string;
 
-  @StringField()
-  backdropPath!: string;
+  @StringFieldOptional({ nullable: true })
+  backdropPath!: string | null;
 
   @StringField()
   posterPath!: string;
@@ -39,11 +52,11 @@ export class ProgramDto extends AbstractDto {
   @NumberFieldOptional({ nullable: true })
   voteCount!: number | null;
 
-  @DateField()
-  releaseDate!: Date;
+  @DateFieldOptional()
+  releaseDate!: Date | null;
 
-  @DateField()
-  firstAirDate!: Date;
+  @DateFieldOptional()
+  firstAirDate!: Date | null;
 
   @NumberFieldOptional({ isArray: true, nullable: true })
   genreIds?: Uuid[];
@@ -51,21 +64,27 @@ export class ProgramDto extends AbstractDto {
   @UUIDFieldOptional({ nullable: true })
   watchProviderIds?: Uuid[];
 
-  constructor(program: ProgramEntity) {
-    super(program);
-    this.tmdbProgramId = program.tmdbProgramId;
-    this.name = program.name;
+  constructor(
+    program: ITmdbMovieList | ITmdbTvList,
+    programType: ProgramEnumType,
+    genreIds: Uuid[],
+    watchProviderIds: Uuid[],
+  ) {
+    this.programType = programType;
+    this.tmdbProgramId = program.id;
+    this.name = 'title' in program ? program.title : program.name;
     this.overview = program.overview;
-    this.originCountry = program.originCountry;
-    this.backdropPath = program.backdropPath;
-    this.posterPath = program.posterPath;
-    this.voteAverage = program.voteAverage;
-    this.voteCount = program.voteCount;
-    this.releaseDate = program.releaseDate;
-    this.firstAirDate = program.firstAirDate;
-    this.genreIds = program.genres.map((genre) => genre.id);
-    this.watchProviderIds = program.watchProviders.map(
-      (watchProvider) => watchProvider.id,
-    );
+    this.originCountry =
+      'origin_country' in program ? (program.origin_country[0] ?? '') : '';
+    this.backdropPath = program.backdrop_path;
+    this.posterPath = program.poster_path;
+    this.voteAverage = program.vote_average;
+    this.voteCount = program.vote_count;
+    this.releaseDate =
+      'release_date' in program ? new Date(program.release_date) : null;
+    this.firstAirDate =
+      'first_air_date' in program ? new Date(program.first_air_date) : null;
+    this.genreIds = genreIds;
+    this.watchProviderIds = watchProviderIds;
   }
 }
