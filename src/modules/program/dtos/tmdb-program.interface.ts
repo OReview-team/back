@@ -1,9 +1,9 @@
 export interface ITmdbProgramResponse {
   page: number;
-  results: ITmdbProgramList[];
+  results: ITmdbMovieList[];
 }
 
-export interface ITmdbProgramList {
+export interface ITmdbMovieList {
   id: number;
   genre_ids: number[];
   title: string;
@@ -12,10 +12,26 @@ export interface ITmdbProgramList {
   vote_average: number;
   vote_count: number;
   adult: boolean;
-  backdrop_path: string;
+  backdrop_path: string | null;
   original_language: string;
   original_title: string;
   popularity: number;
   poster_path: string;
   video: boolean;
+}
+
+export interface ITmdbTvList {
+  id: number;
+  genre_ids: number[];
+  name: string;
+  overview: string;
+  backdrop_path: string | null;
+  poster_path: string;
+  first_air_date: Date;
+  vote_average: number;
+  vote_count: number;
+  adult: boolean;
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
 }
