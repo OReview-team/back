@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
-import { In } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { HttpService } from '@nestjs/axios';
 
 import type { CreateProgramDto } from './dtos/create-program.dto';
 import { GenreEntity } from './entities/genre.entity.ts';
@@ -18,6 +18,9 @@ export class ProgramService {
     private watchProviderRepository: Repository<WatchProviderEntity>,
     @InjectRepository(GenreEntity)
     private genreRepository: Repository<GenreEntity>,
+    @Inject('TMDB_CONFIG')
+    private readonly tmdbConfig: { tmdbApiKey: string; tmdbUrl: string },
+    private readonly httpService: HttpService,
   ) {}
 
   @Transactional()
@@ -52,5 +55,92 @@ export class ProgramService {
     // 3. api call 되는지 확인하기
 
     // === 호출 성공 후 해야할 것 ===
+    
+  }
+
+  @Transactional()
+  async createGenreList(): Promise<GenreEntity[]> {
+    try {
+      // ===== API 호출부 =====
+      const tvLocation = 'genre/tv/list';
+
+      const movieLocation = 'genre/movie/list';
+
+      const tvGenreList: Array<{ id: number; name: string }> = (
+        await this.httpService.axiosRef.get(
+          this.tmdbConfig.tmdbUrl + tvLocation,
+          {
+            headers: {
+              Authorization: this.tmdbConfig.tmdbApiKey,
+              accept: 'application/json',
+            },
+            params: {
+              language: 'ko',
+            },
+          },
+        )
+      ).data.genres;
+
+      const movieGenreList: Array<{ id: number; name: string }> = (
+        await this.httpService.axiosRef.get(
+          this.tmdbConfig.tmdbUrl + movieLocation,
+          {
+            headers: {
+              Authorization: this.tmdbConfig.tmdbApiKey,
+              accept: 'application/json',
+            },
+            params: {
+              language: 'ko',
+            },
+          },
+        )
+      ).data.genres;
+
+      // ===== API 호출부 =====
+
+      const savedGenreList = await this.genreRepository.find();
+
+      const notSavedGenreList: Array<{
+        id: number;
+        name: string;
+        program: string;
+      }> = [];
+
+      tvGenreList.forEach((tvGenre) => {
+        const savedTvGenreIdList = savedGenreList
+          .filter((per) => per.program === 'TV')
+          .map((genre) => genre.originId);
+        if (!savedTvGenreIdList.includes(tvGenre.id)) {
+          notSavedGenreList.push({ ...tvGenre, program: 'TV' });
+        }
+      });
+
+      movieGenreList.forEach((movieGenre) => {
+        const savedMovieGenreIdList = savedGenreList
+          .filter((per) => per.program === 'MOVIE')
+          .map((genre) => genre.originId);
+        if (!savedMovieGenreIdList.includes(movieGenre.id)) {
+          notSavedGenreList.push({ ...movieGenre, program: 'MOVIE' });
+        }
+      });
+
+      if (notSavedGenreList.length > 0) {
+        await this.genreRepository.save(
+          notSavedGenreList.map((genre) => {
+            return {
+              originId: genre.id,
+              name: genre.name,
+              program: genre.program,
+            };
+          }),
+        );
+      }
+
+      const genreList = await this.genreRepository.find();
+
+      return genreList;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   }
 }
