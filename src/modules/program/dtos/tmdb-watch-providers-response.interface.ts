@@ -9,3 +9,17 @@ export interface ITmdbWatchProvider {
   provider_name: string;
   provider_id: number;
 }
+
+export class WatchProviderResponseDto {
+  tmdbProviderId: number;
+
+  name: string;
+
+  logoPath: string;
+
+  constructor(provider: ITmdbWatchProvider) {
+    this.tmdbProviderId = provider.provider_id;
+    this.name = provider.provider_name;
+    this.logoPath = provider.logo_path;
+  }
+}
