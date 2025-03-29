@@ -1,5 +1,5 @@
 export interface ITmdbWatchProvidersResponse {
-  result: ITmdbWatchProvider[];
+  results: ITmdbWatchProvider[];
 }
 
 export interface ITmdbWatchProvider {
