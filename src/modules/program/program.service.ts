@@ -25,41 +25,19 @@ export class ProgramService {
 
   @Transactional()
   async createProgram(createProgramDto: CreateProgramDto) {
-    // 먼저 들어온 Id가 있으면 DB에 있는지 확인하기
-    const genreList = await this.genreRepository.find({
-      where: { id: In(createProgramDto.genreIds ?? []) },
-    });
-
-    if (
-      genreList.length > 0 ||
-      genreList.length !== createProgramDto.genreIds?.length
-    ) {
-      throw new BadRequestException('입력한 genreId 가 일치하지 않습니다.');
-    }
-
-    const watchProviderList = await this.watchProviderRepository.find({
-      where: { id: In(createProgramDto.watchProviderIds ?? []) },
-    });
-
-    if (
-      watchProviderList.length > 0 ||
-      watchProviderList.length !== createProgramDto.watchProviderIds?.length
-    ) {
-      throw new BadRequestException(
-        '입력한 watchProviderId 가 일치하지 않습니다.',
-      );
-    }
+    // 1. 검색하기
+    // 2. 검색 결과로
     // ===== axios 같은 패키지 설치 후 해야할 것 ======
     // 1. api call 설정하기
     // 2. 비동기 api call package설치하기
     // 3. api call 되는지 확인하기
-
     // === 호출 성공 후 해야할 것 ===
-    
   }
 
+  async createWatchProviders() {}
+
   @Transactional()
-  async createGenreList(): Promise<GenreEntity[]> {
+  async createGenres(): Promise<GenreEntity[]> {
     try {
       // ===== API 호출부 =====
       const tvLocation = 'genre/tv/list';

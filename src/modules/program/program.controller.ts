@@ -18,4 +18,11 @@ export class ProgramController {
   async createProgram(@Param() createProgramDto: CreateProgramDto) {
     await this.programService.createProgram(createProgramDto);
   }
+
+  @Post('genre')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse()
+  async createGenreList() {
+    return await this.programService.createGenres();
+  }
 }
