@@ -23,9 +23,6 @@ export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'varchar' })
   overview!: string;
 
-  @Column({ type: 'varchar', comment: '제작 국가' })
-  originCountry!: string;
-
   @Column({ type: 'varchar', comment: '원작 제목' })
   originName!: string;
 
@@ -35,7 +32,7 @@ export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'varchar' })
   posterPath!: string;
 
-  @Column({ nullable: true, type: 'int', comment: '평균 평점' })
+  @Column({ nullable: true, type: 'double precision', comment: '평균 평점' })
   voteAverage!: number | null;
 
   @Column({ nullable: true, type: 'int', comment: '평점 매긴 횟수' })
