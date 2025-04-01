@@ -3,6 +3,7 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../../common/abstract.entity.ts';
 import { UseDto } from '../../../decorators/use-dto.decorator.ts';
 import { ReviewEntity } from '../../review/entities/review.entity.ts';
+import type { ProgramEnumType } from '../consts/program-type.const.ts';
 import { ProgramDto } from '../dtos/program.dto.ts';
 import { GenreEntity } from './genre.entity.ts';
 import { WatchProviderEntity } from './watch-provider.entity.ts';
@@ -11,16 +12,16 @@ import { WatchProviderEntity } from './watch-provider.entity.ts';
 @UseDto(ProgramDto)
 export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'int', comment: 'TMDB에서 제공하는 id' })
-  originId!: number;
+  tmdbProgramId!: number;
+
+  @Column({ type: 'varchar', comment: 'movie or tv' })
+  programType!: ProgramEnumType;
 
   @Column({ type: 'varchar' })
   name!: string;
 
   @Column({ type: 'varchar' })
   overview!: string;
-
-  @Column({ type: 'varchar', comment: '제작 국가' })
-  originCountry!: string;
 
   @Column({ type: 'varchar', comment: '원작 제목' })
   originName!: string;
@@ -31,7 +32,7 @@ export class ProgramEntity extends AbstractEntity<ProgramDto> {
   @Column({ type: 'varchar' })
   posterPath!: string;
 
-  @Column({ nullable: true, type: 'int', comment: '평균 평점' })
+  @Column({ nullable: true, type: 'double precision', comment: '평균 평점' })
   voteAverage!: number | null;
 
   @Column({ nullable: true, type: 'int', comment: '평점 매긴 횟수' })
