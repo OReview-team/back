@@ -1,4 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, type Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
@@ -19,6 +25,7 @@ import type {
 } from './dtos/tmdb-program.interface.ts';
 import { ProgramDto } from './dtos/program.dto.ts';
 import { mapProgramDtoToEntity } from './mappers/program.mapper.ts';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class ProgramService {
@@ -30,7 +37,11 @@ export class ProgramService {
     @InjectRepository(GenreEntity)
     private genreRepository: Repository<GenreEntity>,
     @Inject('TMDB_CONFIG')
-    private readonly tmdbConfig: { tmdbApiKey: string; tmdbUrl: string },
+    private readonly tmdbConfig: {
+      tmdbApiKey: string;
+      tmdbUrl: string;
+      tmdbAccessToken: string;
+    },
     private readonly httpService: HttpService,
   ) {}
 
@@ -41,7 +52,7 @@ export class ProgramService {
 
       const programResponse = await this.httpService.axiosRef.get(programUrl, {
         headers: {
-          Authorization: this.tmdbConfig.tmdbApiKey,
+          Authorization: this.tmdbConfig.tmdbAccessToken,
           accept: 'application/json',
         },
         params: {
@@ -53,10 +64,12 @@ export class ProgramService {
         },
       });
 
-      const tmdbProgramList: ITmdbMovieList[] | ITmdbTvList[] =
-        programResponse.data?.results ?? [];
+      const tmdbProgramList =
+        createProgramDto.programType === 'movie'
+          ? (programResponse.data?.results as ITmdbMovieList[])
+          : (programResponse.data?.results as ITmdbTvList[]);
 
-      if (tmdbProgramList.length > 0) {
+      if (tmdbProgramList.length === 0) {
         throw new Error('TMDB에 검색한 결과가 존재하지 않습니다.');
       }
 
@@ -99,9 +112,21 @@ export class ProgramService {
         });
 
       const savedPrograms = this.programRepository.create(saveProgramList);
+      await this.programRepository.save(savedPrograms);
 
       return savedPrograms;
-    } catch {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.log(error.response);
+        throw new HttpException(
+          error.response?.data?.message || 'TMDB API 요청 중 에러 발생',
+          error.response?.status || HttpStatus.BAD_GATEWAY,
+        );
+      }
+      if (error instanceof Error) {
+        console.log(error?.message);
+        throw new InternalServerErrorException(error.message);
+      }
       throw new Error();
     }
   }

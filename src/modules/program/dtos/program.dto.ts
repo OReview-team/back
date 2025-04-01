@@ -39,7 +39,7 @@ export class ProgramDto {
   overview!: string;
 
   @StringField()
-  originCountry!: string;
+  originName!: string;
 
   @StringFieldOptional({ nullable: true })
   backdropPath!: string | null;
@@ -75,8 +75,17 @@ export class ProgramDto {
     this.tmdbProgramId = program.id;
     this.name = 'title' in program ? program.title : program.name;
     this.overview = program.overview;
-    this.originCountry =
-      'origin_country' in program ? (program.origin_country[0] ?? '') : '';
+    // originName 처리 부분
+    if ('original_name' in program) {
+      this.originName = program.original_name;
+    } else if ('original_title' in program) {
+      console.log(program.original_title);
+      this.originName = program.original_title;
+    } else {
+      this.originName = '';
+    }
+
+    console.log('Setting originName:', this.originName);
     this.backdropPath = program.backdrop_path;
     this.posterPath = program.poster_path;
     this.voteAverage = program.vote_average;
